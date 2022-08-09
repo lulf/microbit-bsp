@@ -294,6 +294,7 @@ pub enum AnimationError {
     TooFast,
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -352,3 +353,4 @@ mod tests {
         assert_eq!(animation.length, 20);
     }
 }
+*/

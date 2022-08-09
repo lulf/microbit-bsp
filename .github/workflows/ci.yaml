@@ -22,8 +22,5 @@ jobs:
       - name: Build
         run: cargo check
 
-      - name: Test
-        run: cargo test
-
       - name: Examples
         run: cargo build --release --examples

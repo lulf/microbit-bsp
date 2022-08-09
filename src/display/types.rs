@@ -252,6 +252,7 @@ impl SubAssign<u8> for Brightness {
     }
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -315,3 +316,4 @@ mod tests {
         assert!(!b.is_set(4));
     }
 }
+*/

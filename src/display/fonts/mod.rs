@@ -61,6 +61,7 @@ impl<const XSIZE: usize, const YSIZE: usize> Into<Frame<XSIZE, YSIZE>> for char 
     }
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -100,3 +101,4 @@ mod tests {
         assert!(!frame.is_set(4, 4));
     }
 }
+*/
