@@ -23,4 +23,4 @@ jobs:
         run: pushd microbit; cargo build --release; popd;
 
       - name: Examples
-        run: for i in display; do pushd examples/$i; cargo build --release; popd; done;
+        run: for i in display ble; do pushd examples/$i; cargo build --release; popd; done;

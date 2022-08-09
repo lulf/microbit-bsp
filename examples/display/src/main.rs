@@ -3,7 +3,8 @@
 #![feature(generic_associated_types)]
 #![feature(type_alias_impl_trait)]
 
-use {defmt_rtt as _, panic_probe as _};
+use defmt_rtt as _;
+use panic_probe as _;
 
 use embassy_microbit::*;
 
