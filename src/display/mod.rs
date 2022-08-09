@@ -9,7 +9,7 @@ pub use types::*;
 
 const REFRESH_INTERVAL: Duration = Duration::from_micros(500);
 
-// Led matrix driver supporting up to 32x32 led matrices.
+/// Led matrix driver supporting up to 32x32 led matrices.
 pub struct LedMatrix<P, const ROWS: usize, const COLS: usize>
 where
     P: OutputPin + 'static,
