@@ -2,6 +2,7 @@
 members = [
     "display",
     "ble",
+    "bt-mesh",
 ]
 
 [patch.crates-io]
@@ -10,3 +11,4 @@ embassy-executor = { git = "https://github.com/embassy-rs/embassy.git", branch =
 embassy-util = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }
 nrf-softdevice = { git = "https://github.com/embassy-rs/nrf-softdevice.git", rev = "ab0ad770c729b4f034bf0a085b50347a3e6b2ea9" }
 nrf-softdevice-s113 = { git = "https://github.com/embassy-rs/nrf-softdevice.git", rev = "ab0ad770c729b4f034bf0a085b50347a3e6b2ea9" }
+nrf-softdevice-s140 = { git = "https://github.com/embassy-rs/nrf-softdevice.git", rev = "ab0ad770c729b4f034bf0a085b50347a3e6b2ea9" }
