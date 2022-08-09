@@ -1,0 +1,22 @@
+[package]
+name = "embassy-microbit"
+version = "0.1.0"
+edition = "2021"
+description = "An embassy-based boards support package (BSP) for BBC Micro:bit v2"
+
+[dependencies]
+embassy-nrf = { version = "0.1.0", default-features = false, features = ["nrf52833", "gpiote", "time-driver-rtc1", "nightly", "unstable-traits"]}
+embassy-executor = { version = "0.1.0", default-features = false, features = ["time"] }
+embedded-hal = "1.0.0-alpha.8"
+
+[dev-dependencies]
+embassy-executor = { version = "0.1.0", default-features = false, features = ["time", "defmt-timestamp-uptime", "defmt", "nightly"] }
+defmt = "0.3"
+defmt-rtt = "0.3"
+panic-probe = { version = "0.3", features = ["print-defmt"] }
+cortex-m-rt = "0.7.0"
+cortex-m = "0.7.3"
+
+[patch.crates-io]
+embassy-nrf = { path = "../../embassy/embassy-nrf" }
+embassy-executor = { path = "../../embassy/embassy-executor" }
