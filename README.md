@@ -11,3 +11,11 @@ embassy-microbit is a boards support package (BSP) library for the BBC micro:bit
 
 * LED display driver with fonts (requires embassy-executor for time-keeping)
 * Uses embassy-nrf HAL for peripherals
+
+## usage
+
+To run examples:
+
+```
+cargo run --release --example hello_world
+```
