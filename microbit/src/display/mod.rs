@@ -24,6 +24,7 @@ impl<P, const ROWS: usize, const COLS: usize> LedMatrix<P, ROWS, COLS>
 where
     P: OutputPin,
 {
+    /// Create a new instance of an LED matrix using the provided pins
     pub fn new(pin_rows: [P; ROWS], pin_cols: [P; COLS]) -> Self {
         LedMatrix {
             pin_rows,
@@ -34,6 +35,7 @@ where
         }
     }
 
+    /// Clear all LEDs
     pub fn clear(&mut self) {
         self.frame_buffer.clear();
         for row in self.pin_rows.iter_mut() {
@@ -45,46 +47,37 @@ where
         }
     }
 
+    /// Turn on point (x,y) in the frame buffer
     pub fn on(&mut self, x: usize, y: usize) {
         self.frame_buffer.set(x, y);
     }
 
+    /// Turn off point (x,y) in the frame buffer
     pub fn off(&mut self, x: usize, y: usize) {
         self.frame_buffer.unset(x, y);
     }
 
+    /// Apply the provided frame onto the frame buffer
     pub fn apply(&mut self, frame: Frame<COLS, ROWS>) {
         self.frame_buffer = frame;
     }
 
-    pub fn set_row_high(&mut self, row: usize) {
-        self.pin_rows[row].set_high().ok().unwrap();
-    }
-
-    pub fn set_row_low(&mut self, row: usize) {
-        self.pin_rows[row].set_low().ok().unwrap();
-    }
-
-    pub fn set_col_high(&mut self, col: usize) {
-        self.pin_cols[col].set_high().ok().unwrap();
-    }
-
-    pub fn set_col_low(&mut self, col: usize) {
-        self.pin_cols[col].set_low().ok().unwrap();
-    }
-
+    /// Adjust the brightness level
     pub fn set_brightness(&mut self, brightness: Brightness) {
         self.brightness = brightness;
     }
 
+    /// Increase brightness relative to current setting
     pub fn increase_brightness(&mut self) {
         self.brightness += 1;
     }
 
+    /// Decrease brightness relative to current setting
     pub fn decrease_brightness(&mut self) {
         self.brightness -= 1;
     }
 
+    /// Perform a full refresh of the display based on the current frame buffer
     pub fn render(&mut self) {
         for row in self.pin_rows.iter_mut() {
             row.set_low().ok();
@@ -109,6 +102,8 @@ where
         self.row_p = (self.row_p + 1) % self.pin_rows.len();
     }
 
+    /// Display the provided frame for the duration. Handles screen refresh
+    /// in an async display loop.
     pub async fn display(&mut self, frame: Frame<COLS, ROWS>, length: Duration) {
         self.apply(frame);
         let end = Instant::now() + length;
@@ -119,16 +114,19 @@ where
         self.clear();
     }
 
+    /// Scroll the provided text across the LED display using default duration based on text length
     pub async fn scroll(&mut self, text: &str) {
         self.scroll_with_speed(text, Duration::from_secs((text.len() / 2) as u64))
             .await;
     }
 
+    /// Scroll the provided text across the screen within the provided duration
     pub async fn scroll_with_speed(&mut self, text: &str, speed: Duration) {
         self.animate(text.as_bytes(), AnimationEffect::Slide, speed)
             .await;
     }
 
+    /// Apply animation based on data with the given effect during the provided duration
     pub async fn animate(&mut self, data: &[u8], effect: AnimationEffect, duration: Duration) {
         let mut animation: Animation<'_, COLS, ROWS> =
             Animation::new(AnimationData::Bytes(data), effect, duration).unwrap();
@@ -148,6 +146,7 @@ where
         self.clear();
     }
 
+    /// Animate a slice of frames using the provided effect during the provided duration
     pub async fn animate_frames(
         &mut self,
         data: &[Frame<COLS, ROWS>],
@@ -175,11 +174,13 @@ where
 
 #[derive(Clone, Copy)]
 pub enum AnimationEffect {
+    /// No effect
     None,
+    /// Sliding effect
     Slide,
 }
 
-pub enum AnimationData<'a, const XSIZE: usize, const YSIZE: usize> {
+enum AnimationData<'a, const XSIZE: usize, const YSIZE: usize> {
     Frames(&'a [Frame<XSIZE, YSIZE>]),
     Bytes(&'a [u8]),
 }
@@ -200,7 +201,7 @@ impl<'a, const XSIZE: usize, const YSIZE: usize> AnimationData<'a, XSIZE, YSIZE>
     }
 }
 
-pub struct Animation<'a, const XSIZE: usize, const YSIZE: usize> {
+struct Animation<'a, const XSIZE: usize, const YSIZE: usize> {
     frames: AnimationData<'a, XSIZE, YSIZE>,
     sequence: usize,
     frame_index: usize,
@@ -212,7 +213,7 @@ pub struct Animation<'a, const XSIZE: usize, const YSIZE: usize> {
 }
 
 #[derive(PartialEq, Debug)]
-pub enum AnimationState<const XSIZE: usize, const YSIZE: usize> {
+enum AnimationState<const XSIZE: usize, const YSIZE: usize> {
     Wait,
     Apply(Frame<XSIZE, YSIZE>),
     Done,
