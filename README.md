@@ -14,8 +14,9 @@ embassy-microbit is a boards support package (BSP) library for the BBC micro:bit
 
 ## usage
 
-To run examples:
+To run an example:
 
 ```
-cargo run --release --example hello_world
+cd examples/hello_world
+cargo run --release
 ```
