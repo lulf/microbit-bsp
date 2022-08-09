@@ -1,8 +1,7 @@
 use embassy_executor::time::{block_for, Duration, Instant, Timer};
 use embedded_hal::digital::blocking::OutputPin;
 
-mod fonts;
-pub use fonts::*;
+pub mod fonts;
 
 mod types;
 pub use types::*;

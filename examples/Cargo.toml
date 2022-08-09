@@ -6,3 +6,4 @@ members = [
 [patch.crates-io]
 embassy-nrf = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }
 embassy-executor = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }
+embassy-util = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }
