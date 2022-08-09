@@ -20,6 +20,7 @@ async fn main(_spawner: Spawner, p: Peripherals) {
     let mut btn_b = board.btn_b;
 
     display.scroll("Hello, World!").await;
+    defmt::info!("Application started, press buttons!");
     loop {
         match select(btn_a.wait_for_low(), btn_b.wait_for_low()).await {
             Either::First(_) => {
