@@ -1,0 +1,14 @@
+[package]
+name = "embassy-microbit-hello-world"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+embassy-microbit = { path = "../../microbit" }
+embassy-nrf = { version = "0.1.0", default-features = false, features = ["nrf52833", "gpiote", "time-driver-rtc1", "nightly", "unstable-traits"]}
+embassy-executor = { version = "0.1.0", default-features = false, features = ["time", "defmt-timestamp-uptime", "defmt", "nightly"] }
+defmt = "0.3"
+defmt-rtt = "0.3"
+panic-probe = { version = "0.3", features = ["print-defmt"] }
+cortex-m-rt = "0.7.0"
+cortex-m = "0.7.3"

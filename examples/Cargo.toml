@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "hello_world"
+]
+
+[patch.crates-io]
+embassy-nrf = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }
+embassy-executor = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }
