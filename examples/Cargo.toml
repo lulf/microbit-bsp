@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "hello_world"
+    "display"
 ]
 
 [patch.crates-io]
