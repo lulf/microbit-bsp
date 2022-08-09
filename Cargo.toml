@@ -18,5 +18,5 @@ cortex-m-rt = "0.7.0"
 cortex-m = "0.7.3"
 
 [patch.crates-io]
-embassy-nrf = { path = "../../embassy/embassy-nrf" }
-embassy-executor = { path = "../../embassy/embassy-executor" }
+embassy-nrf = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }
+embassy-executor = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }
