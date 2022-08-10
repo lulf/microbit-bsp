@@ -20,19 +20,19 @@ async fn main(_spawner: Spawner, p: Peripherals) {
     let mut btn_a = board.btn_a;
     let mut btn_b = board.btn_b;
 
-    display.set_brightness(Brightness::MAX);
+    display.set_brightness(display::Brightness::MAX);
     display.scroll("Hello, World!").await;
     defmt::info!("Application started, press buttons!");
     loop {
         match select(btn_a.wait_for_low(), btn_b.wait_for_low()).await {
             Either::First(_) => {
                 display
-                    .display(fonts::ARROW_LEFT, Duration::from_secs(1))
+                    .display(display::fonts::ARROW_LEFT, Duration::from_secs(1))
                     .await;
             }
             Either::Second(_) => {
                 display
-                    .display(fonts::ARROW_RIGHT, Duration::from_secs(1))
+                    .display(display::fonts::ARROW_RIGHT, Duration::from_secs(1))
                     .await;
             }
         }
