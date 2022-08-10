@@ -8,6 +8,7 @@ description = "An embassy-based boards support package (BSP) for BBC Micro:bit v
 embassy-nrf = { version = "0.1.0", default-features = false, features = ["nrf52833", "gpiote", "time-driver-rtc1", "nightly", "unstable-traits"]}
 embassy-executor = { version = "0.1.0", default-features = false, features = ["time"] }
 embedded-hal = "1.0.0-alpha.8"
+lsm303agr = "0.2.2"
 
 [dev-dependencies]
 embassy-executor = { version = "0.1.0", default-features = false, features = ["time", "defmt-timestamp-uptime", "defmt", "nightly"] }
