@@ -1,3 +1,5 @@
+//! Bitmaps and fonts for the micro:bit
+
 use super::types::*;
 mod pendolino;
 
@@ -5,6 +7,7 @@ mod bitmaps {
     use super::*;
 
     #[rustfmt::skip]
+    /// A check-mark bitmap
     pub const CHECK_MARK: Frame<5, 5> = frame_5x5(&[
         0b00000,
         0b00001,
@@ -14,6 +17,7 @@ mod bitmaps {
     ]);
 
     #[rustfmt::skip]
+    /// A cross-mark bitmap
     pub const CROSS_MARK: Frame<5, 5> = frame_5x5(&[
         0b00000,
         0b01010,
@@ -23,6 +27,7 @@ mod bitmaps {
     ]);
 
     #[rustfmt::skip]
+    /// A left arrow bitmap
     pub const ARROW_LEFT: Frame<5, 5> = frame_5x5(&[
         0b00100,
         0b01000,
@@ -32,14 +37,16 @@ mod bitmaps {
     ]);
 
     #[rustfmt::skip]
+    /// A right arrow bitmap
     pub const ARROW_RIGHT: Frame<5, 5> = frame_5x5(&[
         0b00100,
         0b00010,
         0b11111,
         0b00010,
-        0b00100,
+        0b01100,
     ]);
 
+    /// Construct a 5x5 frame from a byte slice
     pub const fn frame_5x5<const XSIZE: usize, const YSIZE: usize>(
         input: &[u8; 5],
     ) -> Frame<XSIZE, YSIZE> {

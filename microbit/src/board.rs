@@ -8,43 +8,76 @@ use embassy_nrf::{
 };
 
 type Peripherals = embassy_nrf::Peripherals;
+
+/// LED matrix peripheral for the micro:bit
 pub type LedMatrix = LedMatrixDriver<Output<'static, AnyPin>, 5, 5>;
 
+/// Button 'A'
 pub type ButtonA = Input<'static, P0_14>;
+
+/// Button 'B'
 pub type ButtonB = Input<'static, P0_23>;
 
+/// Represents all the peripherals and pins available for the BBC micro:bit.
 pub struct Microbit {
+    /// LED matrix display
     pub display: LedMatrix,
+    /// Button 'A'
     pub btn_a: ButtonA,
+    /// Button 'B'
     pub btn_b: ButtonB,
+    /// UART0 peripheral
     pub uarte0: UARTE0,
+    /// TIMER0 peripheral
     pub timer0: TIMER0,
+    /// Speaker pin
     pub speaker: P0_00,
 
+    /// P1 connector pin
     pub p1: P0_03,
+    /// P2 connector pin
     pub p2: P0_04,
+    /// P8 connector pin
     pub p8: P0_10,
+    /// P9 connector pin
     pub p9: P0_09,
+    /// P12 connector pin
     pub p12: P0_12,
+    /// P13 connector pin
     pub p13: P0_17,
+    /// P14 connector pin
     pub p14: P0_01,
+    /// P15 connector pin
     pub p15: P0_13,
+    /// P16 connector pin
     pub p16: P1_02,
+    /// P17 connector pin
     pub p17: P0_06,
+    /// P19 connector pin
     pub p19: P0_26,
+    /// P20 connector pin
     pub p20: P1_00,
+    /// P22 connector pin
     pub p22: P0_08,
+    /// P23 connector pin
     pub p23: P0_16,
+    /// P25 connector pin
     pub p25: P1_08,
 
+    /// SPI/I2C peripheral
     pub twispi0: TWISPI0,
+    /// PWM0 peripheral
     pub pwm0: PWM0,
+    /// PPI channel 0
     pub ppi_ch0: PPI_CH0,
+    /// PPI channel 1
     pub ppi_ch1: PPI_CH1,
+    /// Random number generator
     pub rng: RNG,
 }
 
 impl Microbit {
+    /// Create a new instance based on embassy peripherals.
     pub fn new(p: Peripherals) -> Self {
         // LED Matrix
         let rows = [

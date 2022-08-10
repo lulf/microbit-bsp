@@ -1,3 +1,7 @@
+//! Driver a NxM LED matrix display
+//!
+//! * Can display 5x5 bitmaps from raw data or characters
+//! * Methods for scrolling text across LED matrix or displaying a bitmap for a duration
 use embassy_executor::time::{block_for, Duration, Instant, Timer};
 use embedded_hal::digital::blocking::OutputPin;
 
@@ -8,7 +12,9 @@ pub use types::*;
 
 const REFRESH_INTERVAL: Duration = Duration::from_micros(500);
 
-/// Led matrix driver supporting up to 32x32 led matrices.
+/// Led matrix driver supporting arbitrary sized led matrixes.
+///
+/// NOTE: Currently restricted by 8 bits width
 pub struct LedMatrix<P, const ROWS: usize, const COLS: usize>
 where
     P: OutputPin + 'static,
@@ -172,6 +178,7 @@ where
     }
 }
 
+/// An effect filter to apply for an animation
 #[derive(Clone, Copy)]
 pub enum AnimationEffect {
     /// No effect
@@ -290,7 +297,9 @@ impl<'a, const XSIZE: usize, const YSIZE: usize> Animation<'a, XSIZE, YSIZE> {
 
 #[derive(Debug, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+/// Errors produced when running animations
 pub enum AnimationError {
+    /// Animation scroll is too fast to keep up with the refresh rate
     TooFast,
 }
 

@@ -1,13 +1,10 @@
 use core::ops::{AddAssign, SubAssign};
-
-/**
- * A 32 bit bitmap based
- *
- * TODO: Use const generic expressions to derive data size when stabilized
- */
+// TODO: Use const generic expressions to derive data size when stabilized
 const BITMAP_WIDTH: usize = 1;
 // Using u8 for each word
 const BITMAP_WORD_SIZE: usize = 8;
+
+/// A bitmap with room for 8 bits used by Frame to create a compact frame buffer
 #[derive(Clone, Copy, PartialEq)]
 pub struct Bitmap {
     data: [u8; BITMAP_WIDTH],
@@ -43,6 +40,7 @@ impl defmt::Format for Bitmap {
 }
 
 impl Bitmap {
+    /// Create a new bitmap with initial input and number of bits
     // TODO: Change input to array when const generics...
     pub const fn new(input: u8, nbits: usize) -> Self {
         let mut data = [0; BITMAP_WIDTH];
@@ -56,6 +54,7 @@ impl Bitmap {
         Self { data, nbits }
     }
 
+    /// Create an empty bitmap with nbits bits
     pub const fn empty(nbits: usize) -> Self {
         Self {
             data: [0; 1],
@@ -63,6 +62,7 @@ impl Bitmap {
         }
     }
 
+    /// Set bit n in bitmap
     pub fn set(&mut self, bit: usize) {
         assert!(bit < self.nbits);
         let idx: usize = bit / BITMAP_WORD_SIZE;
@@ -70,12 +70,14 @@ impl Bitmap {
         self.data[idx] |= 1 << ((BITMAP_WORD_SIZE - 1) - p);
     }
 
+    /// Clear all bits in bitmap
     pub fn clear_all(&mut self) {
         for i in 0..self.data.len() {
             self.data[i] = 0;
         }
     }
 
+    /// Clear bit n in bitmap
     pub fn clear(&mut self, bit: usize) {
         assert!(bit < self.nbits);
         let idx: usize = bit / BITMAP_WORD_SIZE;
@@ -83,6 +85,7 @@ impl Bitmap {
         self.data[idx] &= !(1 << ((BITMAP_WORD_SIZE - 1) - p));
     }
 
+    /// Check if bit n is set in bitmap
     pub fn is_set(&self, bit: usize) -> bool {
         assert!(bit < self.nbits);
         let idx: usize = bit / BITMAP_WORD_SIZE;
@@ -90,25 +93,28 @@ impl Bitmap {
         (self.data[idx] & (1 << ((BITMAP_WORD_SIZE - 1) - p))) != 0
     }
 
-    // Shift left by nbits bits
+    /// Shift left by nbits bits
     pub fn shift_left(&mut self, nbits: usize) {
         for b in self.data.iter_mut() {
             *b <<= nbits;
         }
     }
 
+    /// Shift right by nbits bits
     pub fn shift_right(&mut self, nbits: usize) {
         for b in self.data.iter_mut() {
             *b >>= nbits;
         }
     }
 
+    /// Logical OR with another bitmap
     pub fn or(&mut self, other: &Bitmap) {
         for i in 0..self.data.len() {
             self.data[i] |= other.data[i];
         }
     }
 
+    /// Logical AND with another bitmap
     pub fn and(&mut self, other: &Bitmap) {
         for i in 0..self.data.len() {
             self.data[i] &= other.data[i];
@@ -116,9 +122,9 @@ impl Bitmap {
     }
 }
 
-/**
- * A NxM frame that can be displayed on a LED matrix.
- */
+/// An NxM frame that can be displayed on a LED matrix.
+///
+/// NOTE: Currently restricted to 8 bit width
 #[derive(Clone, Copy, PartialEq)]
 pub struct Frame<const XSIZE: usize, const YSIZE: usize> {
     bitmap: [Bitmap; YSIZE],
@@ -159,52 +165,62 @@ impl<const XSIZE: usize, const YSIZE: usize> defmt::Format for Frame<XSIZE, YSIZ
 }
 
 impl<const XSIZE: usize, const YSIZE: usize> Frame<XSIZE, YSIZE> {
+    /// Create an empty frame
     pub const fn empty() -> Self {
         Self {
             bitmap: [Bitmap::empty(XSIZE); YSIZE],
         }
     }
 
+    /// Create a frame from a bitmap array
     pub const fn new(bitmap: [Bitmap; YSIZE]) -> Self {
         Self { bitmap }
     }
 
+    /// Clear this frame (empty)
     pub fn clear(&mut self) {
         for m in self.bitmap.iter_mut() {
             m.clear_all();
         }
     }
 
+    /// Enable (x, y) on this frame
     pub fn set(&mut self, x: usize, y: usize) {
         self.bitmap[y].set(x);
     }
 
+    /// Disable (x, y) on this frame
     pub fn unset(&mut self, x: usize, y: usize) {
         self.bitmap[y].clear(x);
     }
 
+    /// Check if (x, y) is set on this frame
     pub fn is_set(&self, x: usize, y: usize) -> bool {
         self.bitmap[y].is_set(x)
     }
 
+    /// Logical OR with another frame
     pub fn or(&mut self, other: &Frame<XSIZE, YSIZE>) {
         for i in 0..self.bitmap.len() {
             self.bitmap[i].or(&other.bitmap[i]);
         }
     }
 
+    /// Shift all rows left
     pub fn shift_left(&mut self, nbits: usize) {
         for i in 0..self.bitmap.len() {
             self.bitmap[i].shift_left(nbits);
         }
     }
 
+    /// Shift all rows right
     pub fn shift_right(&mut self, nbits: usize) {
         for i in 0..self.bitmap.len() {
             self.bitmap[i].shift_right(nbits);
         }
     }
 
+    /// Logical AND with another frame
     pub fn and(&mut self, other: &Frame<XSIZE, YSIZE>) {
         for i in 0..self.bitmap.len() {
             self.bitmap[i].and(&other.bitmap[i]);
@@ -218,17 +234,23 @@ impl<const XSIZE: usize, const YSIZE: usize> Default for Frame<XSIZE, YSIZE> {
     }
 }
 
+/// A brightness setting for the display.
 #[derive(Clone, Copy)]
 pub struct Brightness(u8);
 
 impl Brightness {
+    /// Maximum brightness
     pub const MAX: Brightness = Brightness(10);
+
+    /// Lowest brightness
     pub const MIN: Brightness = Brightness(0);
 
+    /// Create a new brightness with a custom level
     pub fn new(level: u8) -> Self {
-        Self(level)
+        Self(level.clamp(Self::MIN.0, Self::MAX.0))
     }
 
+    /// Return the level value
     pub fn level(&self) -> u8 {
         self.0
     }
