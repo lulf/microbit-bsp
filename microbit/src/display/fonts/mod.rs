@@ -24,20 +24,20 @@ mod bitmaps {
 
     #[rustfmt::skip]
     pub const ARROW_LEFT: Frame<5, 5> = frame_5x5(&[
-        0b00010,
         0b00100,
+        0b01000,
         0b11111,
+        0b01000,
         0b00100,
-        0b00010,
     ]);
 
     #[rustfmt::skip]
     pub const ARROW_RIGHT: Frame<5, 5> = frame_5x5(&[
-        0b01000,
         0b00100,
+        0b00010,
         0b11111,
+        0b00010,
         0b00100,
-        0b01000,
     ]);
 
     pub const fn frame_5x5<const XSIZE: usize, const YSIZE: usize>(
