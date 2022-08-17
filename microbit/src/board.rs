@@ -2,8 +2,8 @@ use crate::display::LedMatrix as LedMatrixDriver;
 use embassy_nrf::{
     gpio::{AnyPin, Input, Level, Output, OutputDrive, Pin, Pull},
     peripherals::{
-        P0_00, P0_01, P0_03, P0_04, P0_06, P0_08, P0_09, P0_10, P0_12, P0_13, P0_14, P0_16, P0_17,
-        P0_23, P0_26, P1_00, P1_02, P1_08, PPI_CH0, PPI_CH1, PWM0, RNG, TIMER0, TWISPI0, UARTE0,
+        P0_00, P0_01, P0_03, P0_04, P0_06, P0_08, P0_09, P0_10, P0_12, P0_13, P0_16, P0_17, P0_26,
+        P1_00, P1_02, P1_08, PPI_CH0, PPI_CH1, PWM0, RNG, TIMER0, TWISPI0, UARTE0,
     },
 };
 
@@ -13,19 +13,16 @@ type Peripherals = embassy_nrf::Peripherals;
 pub type LedMatrix = LedMatrixDriver<Output<'static, AnyPin>, 5, 5>;
 
 /// Button 'A'
-pub type ButtonA = Input<'static, P0_14>;
-
-/// Button 'B'
-pub type ButtonB = Input<'static, P0_23>;
+pub type Button = Input<'static, AnyPin>;
 
 /// Represents all the peripherals and pins available for the BBC micro:bit.
 pub struct Microbit {
     /// LED matrix display
     pub display: LedMatrix,
     /// Button 'A'
-    pub btn_a: ButtonA,
+    pub btn_a: Button,
     /// Button 'B'
-    pub btn_b: ButtonB,
+    pub btn_b: Button,
     /// UART0 peripheral
     pub uarte0: UARTE0,
     /// TIMER0 peripheral
@@ -98,8 +95,8 @@ impl Microbit {
 
         Self {
             display: LedMatrixDriver::new(rows, cols),
-            btn_a: Input::new(p.P0_14, Pull::Up),
-            btn_b: Input::new(p.P0_23, Pull::Up),
+            btn_a: Input::new(p.P0_14.degrade(), Pull::Up),
+            btn_b: Input::new(p.P0_23.degrade(), Pull::Up),
             uarte0: p.UARTE0,
             timer0: p.TIMER0,
             speaker: p.P0_00,
