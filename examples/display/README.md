@@ -1,4 +1,4 @@
-# embassy-microbit-display-example
+# microbit-async-display-example
 
 Demonstrating the use of the LED matrix on the BBC micro:bit.
 

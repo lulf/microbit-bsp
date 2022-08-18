@@ -1,4 +1,4 @@
-# embassy-microbit-ble-example
+# microbit-async-ble-example
 
 Demonstrating the use of Bluetooth Low Energy (BLE) on the BBC micro:bit.
 

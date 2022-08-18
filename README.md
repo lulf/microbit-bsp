@@ -1,11 +1,11 @@
-# embassy-microbit
+# microbit-async
 
-[![CI](https://github.com/lulf/embassy-microbit/actions/workflows/ci.yaml/badge.svg)](https://github.com/lulf/embassy-microbit/actions/workflows/ci.yaml)
-[![crates.io](https://img.shields.io/crates/v/embassy-microbit.svg)](https://crates.io/crates/embassy-microbit)
-[![docs.rs](https://docs.rs/embassy-microbit/badge.svg)](https://docs.rs/embassy-microbit)
+[![CI](https://github.com/lulf/microbit-async/actions/workflows/ci.yaml/badge.svg)](https://github.com/lulf/microbit-async/actions/workflows/ci.yaml)
+[![crates.io](https://img.shields.io/crates/v/microbit-async.svg)](https://crates.io/crates/microbit-async)
+[![docs.rs](https://docs.rs/microbit-async/badge.svg)](https://docs.rs/microbit-async)
 [![Matrix](https://img.shields.io/matrix/embasssy-rs:matrix.org)](https://matrix.to/#/#lulf:matrix.org)
 
-embassy-microbit is a board support package (BSP) library for the BBC micro:bit v2 and newer.
+microbit-async is a board support package (BSP) library for the BBC micro:bit v2 and newer.
 
 ## Features
 

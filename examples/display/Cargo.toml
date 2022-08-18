@@ -1,10 +1,10 @@
 [package]
-name = "embassy-microbit-display-example"
+name = "microbit-async-display-example"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-embassy-microbit = { path = "../../microbit" }
+microbit-async = { path = "../../microbit" }
 
 embassy-nrf = { version = "0.1.0", default-features = false, features = ["nrf52833", "gpiote", "time-driver-rtc1", "nightly", "unstable-traits"]}
 embassy-util = { version = "0.1.0", default-features = false }
