@@ -3,7 +3,7 @@
 [![CI](https://github.com/lulf/microbit-async/actions/workflows/ci.yaml/badge.svg)](https://github.com/lulf/microbit-async/actions/workflows/ci.yaml)
 [![crates.io](https://img.shields.io/crates/v/microbit-async.svg)](https://crates.io/crates/microbit-async)
 [![docs.rs](https://docs.rs/microbit-async/badge.svg)](https://docs.rs/microbit-async)
-[![Matrix](https://img.shields.io/matrix/embasssy-rs:matrix.org)](https://matrix.to/#/#lulf:matrix.org)
+[![Matrix](https://img.shields.io/matrix/drogue-iot:matrix.org)](https://matrix.to/#/#drogue-iot:matrix.org)
 
 microbit-async is a board support package (BSP) library for the BBC micro:bit v2 and newer.
 
@@ -11,6 +11,7 @@ microbit-async is a board support package (BSP) library for the BBC micro:bit v2
 
 * LED display driver with fonts
 * Uses embassy-nrf HAL for peripherals
+* Rust Async/Await
 
 
 ## Example application

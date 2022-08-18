@@ -6,7 +6,7 @@
 use defmt_rtt as _;
 use panic_probe as _;
 
-use embassy_microbit::*;
+use microbit_async::*;
 
 use embassy_executor::{executor::Spawner, time::Duration};
 use embassy_nrf::Peripherals;

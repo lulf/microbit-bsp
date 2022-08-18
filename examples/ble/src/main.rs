@@ -10,7 +10,7 @@ use embassy_executor::{
     executor::Spawner,
     time::{Delay, Duration, Ticker, Timer},
 };
-use embassy_microbit::*;
+use microbit_async::*;
 use embassy_nrf::{
     buffered_uarte::{BufferedUarte, State},
     config::Config,
