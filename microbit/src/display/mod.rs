@@ -2,7 +2,7 @@
 //!
 //! * Can display 5x5 bitmaps from raw data or characters
 //! * Methods for scrolling text across LED matrix or displaying a bitmap for a duration
-use embassy_executor::time::{block_for, Duration, Instant, Timer};
+use embassy_time::{block_for, Duration, Instant, Timer};
 use embedded_hal::digital::blocking::OutputPin;
 
 pub mod fonts;

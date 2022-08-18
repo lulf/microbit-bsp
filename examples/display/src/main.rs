@@ -8,13 +8,13 @@ use panic_probe as _;
 
 use microbit_async::*;
 
-use embassy_executor::{executor::Spawner, time::Duration};
-use embassy_nrf::Peripherals;
+use embassy_executor::Spawner;
+use embassy_time::Duration;
 use embassy_util::{select, Either};
 
 #[embassy_executor::main]
-async fn main(_spawner: Spawner, p: Peripherals) {
-    let board = Microbit::new(p);
+async fn main(_spawner: Spawner) {
+    let board = Microbit::default();
 
     let mut display = board.display;
     let mut btn_a = board.btn_a;

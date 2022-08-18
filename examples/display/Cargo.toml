@@ -6,9 +6,9 @@ edition = "2021"
 [dependencies]
 microbit-async = { path = "../../microbit" }
 
-embassy-nrf = { version = "0.1.0", default-features = false, features = ["nrf52833", "gpiote", "time-driver-rtc1", "nightly", "unstable-traits"]}
 embassy-util = { version = "0.1.0", default-features = false }
-embassy-executor = { version = "0.1.0", default-features = false, features = ["time", "defmt-timestamp-uptime", "defmt", "nightly"] }
+embassy-executor = { version = "0.1.0", default-features = false, features = ["integrated-timers", "defmt", "nightly"] }
+embassy-time = { version = "0.1.0", default-features = false, features = ["defmt-timestamp-uptime"] }
 
 cortex-m-rt = "0.7"
 

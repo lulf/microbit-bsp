@@ -7,7 +7,8 @@ use embassy_nrf::{
     },
 };
 
-type Peripherals = embassy_nrf::Peripherals;
+pub use embassy_nrf::config::Config;
+pub use embassy_nrf::interrupt::Priority;
 
 /// LED matrix peripheral for the micro:bit
 pub type LedMatrix = LedMatrixDriver<Output<'static, AnyPin>, 5, 5>;
@@ -73,9 +74,16 @@ pub struct Microbit {
     pub rng: RNG,
 }
 
+impl Default for Microbit {
+    fn default() -> Self {
+        Self::new(Default::default())
+    }
+}
+
 impl Microbit {
-    /// Create a new instance based on embassy peripherals.
-    pub fn new(p: Peripherals) -> Self {
+    /// Create a new instance based on HAL configuration
+    pub fn new(config: embassy_nrf::config::Config) -> Self {
+        let p = embassy_nrf::init(config);
         // LED Matrix
         let rows = [
             output_pin(p.P0_21.degrade()),

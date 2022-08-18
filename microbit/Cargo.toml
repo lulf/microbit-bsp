@@ -6,13 +6,13 @@ description = "An embassy-based boards support package (BSP) for BBC Micro:bit v
 
 [dependencies]
 embassy-nrf = { version = "0.1.0", default-features = false, features = ["nrf52833", "gpiote", "time-driver-rtc1", "nightly", "unstable-traits"]}
-embassy-executor = { version = "0.1.0", default-features = false, features = ["time"] }
+embassy-time = { version = "0.1.0", default-features = false }
 cortex-m = { version = "0.7.6", features = ["critical-section-single-core"] }
 embedded-hal = "1.0.0-alpha.8"
 lsm303agr = "0.2.2"
 
 [dev-dependencies]
-embassy-executor = { version = "0.1.0", default-features = false, features = ["time", "defmt-timestamp-uptime", "defmt", "nightly"] }
+embassy-time = { version = "0.1.0", default-features = false, features = ["nightly"] }
 defmt = "0.3"
 defmt-rtt = "0.3"
 panic-probe = { version = "0.3", features = ["print-defmt"] }
@@ -21,4 +21,4 @@ cortex-m = "0.7.3"
 
 [patch.crates-io]
 embassy-nrf = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }
-embassy-executor = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }
+embassy-time = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }

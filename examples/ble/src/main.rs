@@ -3,27 +3,14 @@
 #![macro_use]
 #![feature(generic_associated_types)]
 #![feature(type_alias_impl_trait)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
 
-use embassy_executor::{
-    executor::Spawner,
-    time::{Delay, Duration, Ticker, Timer},
-};
-use microbit_async::*;
-use embassy_nrf::{
-    buffered_uarte::{BufferedUarte, State},
-    config::Config,
-    interrupt,
-    interrupt::Priority,
-    peripherals::{TIMER0, UARTE0},
-    uarte, Peripherals,
-};
-use embassy_util::{select, Either, Forever};
+use embassy_executor::Spawner;
+use embassy_util::Forever;
 use heapless::Vec;
+use microbit_async::*;
 use nrf_softdevice::{
     ble::{gatt_server, peripheral, Connection},
-    raw, temperature_celsius, Flash, Softdevice,
+    raw, Softdevice,
 };
 
 use defmt_rtt as _;
@@ -42,15 +29,15 @@ pub struct BatteryService {
 
 // Application must run at a lower priority than softdevice
 fn config() -> Config {
-    let mut config = embassy_nrf::config::Config::default();
+    let mut config = Config::default();
     config.gpiote_interrupt_priority = Priority::P2;
     config.time_interrupt_priority = Priority::P2;
     config
 }
 
-#[embassy_executor::main(config = "config()")]
-async fn main(s: Spawner, p: Peripherals) {
-    let board = Microbit::new(p);
+#[embassy_executor::main]
+async fn main(s: Spawner) {
+    let _ = Microbit::new(config());
 
     // Spawn the underlying softdevice task
     let sd = enable_softdevice("Embassy Microbit");
@@ -68,7 +55,7 @@ async fn main(s: Spawner, p: Peripherals) {
 
 // Up to 2 connections
 #[embassy_executor::task(pool_size = "2")]
-pub async fn gatt_server_task(sd: &'static Softdevice, conn: Connection, server: &'static Server) {
+pub async fn gatt_server_task(conn: Connection, server: &'static Server) {
     match gatt_server::run(&conn, server, |e| match e {
         ServerEvent::Bas(e) => match e {
             BatteryServiceEvent::BatteryLevelCccdWrite { notifications } => {
@@ -120,7 +107,7 @@ pub async fn advertiser_task(
             .unwrap();
 
         defmt::debug!("connection established");
-        if let Err(e) = spawner.spawn(gatt_server_task(sd, conn, server)) {
+        if let Err(e) = spawner.spawn(gatt_server_task(conn, server)) {
             defmt::warn!("Error spawning gatt task: {:?}", e);
         }
     }
