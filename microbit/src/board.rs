@@ -7,8 +7,7 @@ use embassy_nrf::{
     },
 };
 
-pub use embassy_nrf::config::Config;
-pub use embassy_nrf::interrupt::Priority;
+pub use embassy_nrf::{config::Config, interrupt::Priority};
 
 /// LED matrix peripheral for the micro:bit
 pub type LedMatrix = LedMatrixDriver<Output<'static, AnyPin>, 5, 5>;

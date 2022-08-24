@@ -1,8 +1,8 @@
 //! Accelerometer for the micro:bit
 use embassy_nrf::{
-    interrupt,
+    interrupt::SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0,
     peripherals::{P0_08, P0_16, TWISPI0},
-    twim,
+    twim, Peripheral,
 };
 use lsm303agr::{
     interface::I2cInterface, mode::MagOneShot, AccelMode, AccelOutputDataRate, Error as LsmError,
@@ -21,9 +21,13 @@ pub struct Accelerometer<'d> {
 
 impl<'d> Accelerometer<'d> {
     /// Create and initialize the accelerometer
-    pub fn new(twispi0: TWISPI0, sda: P0_16, scl: P0_08) -> Result<Self, Error> {
+    pub fn new(
+        twispi0: TWISPI0,
+        irq: impl Peripheral<P = SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0> + 'd,
+        sda: P0_16,
+        scl: P0_08,
+    ) -> Result<Self, Error> {
         let config = twim::Config::default();
-        let irq = interrupt::take!(SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0);
         let twi = twim::Twim::new(twispi0, irq, sda, scl, config);
 
         let mut sensor = Lsm303agr::new_with_i2c(twi);

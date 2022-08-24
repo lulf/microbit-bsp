@@ -9,8 +9,8 @@ use panic_probe as _;
 use microbit_async::*;
 
 use embassy_executor::Spawner;
+use embassy_futures::{select, Either};
 use embassy_time::Duration;
-use embassy_util::{select, Either};
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {

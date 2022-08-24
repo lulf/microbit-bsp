@@ -5,7 +5,7 @@
 #![feature(type_alias_impl_trait)]
 
 use embassy_executor::Spawner;
-use embassy_util::Forever;
+use static_cell::StaticCell;
 use heapless::Vec;
 use microbit_async::*;
 use nrf_softdevice::{
@@ -43,8 +43,8 @@ async fn main(s: Spawner) {
     let sd = enable_softdevice("Embassy Microbit");
 
     // Create a BLE GATT server and make it static
-    static SERVER: Forever<Server> = Forever::new();
-    let server = SERVER.put(Server::new(sd).unwrap());
+    static SERVER: StaticCell<Server> = StaticCell::new();
+    let server = SERVER.init(Server::new(sd).unwrap());
 
     s.spawn(softdevice_task(sd)).unwrap();
 
