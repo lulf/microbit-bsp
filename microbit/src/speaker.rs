@@ -33,7 +33,7 @@ impl<'a, T: pwm::Instance> PwmSpeaker<'a, T> {
     }
 
     /// Play a note
-    pub async fn play(&mut self, note: Note) {
+    pub async fn play(&mut self, note: &Note) {
         use embassy_time::{Duration, Timer};
         if note.0 != Pitch::Silent {
             self.pwm.set_prescaler(pwm::Prescaler::Div4);
