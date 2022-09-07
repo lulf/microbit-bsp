@@ -2,8 +2,9 @@ use crate::display::LedMatrix as LedMatrixDriver;
 use embassy_nrf::{
     gpio::{AnyPin, Input, Level, Output, OutputDrive, Pin, Pull},
     peripherals::{
-        P0_00, P0_01, P0_03, P0_04, P0_06, P0_08, P0_09, P0_10, P0_12, P0_13, P0_16, P0_17, P0_26,
-        P1_00, P1_02, P1_08, PPI_CH0, PPI_CH1, PWM0, RNG, TIMER0, TWISPI0, UARTE0,
+        P0_00, P0_01, P0_03, P0_04, P0_05, P0_06, P0_08, P0_09, P0_10, P0_12, P0_13, P0_16, P0_17,
+        P0_20, P0_26, P1_00, P1_02, P1_08, PPI_CH0, PPI_CH1, PWM0, RNG, SAADC, TIMER0, TWISPI0,
+        UARTE0,
     },
 };
 
@@ -29,6 +30,10 @@ pub struct Microbit {
     pub timer0: TIMER0,
     /// Speaker pin
     pub speaker: P0_00,
+    /// Microphone pin
+    pub microphone: P0_05,
+    /// Microphone pin enable
+    pub micen: P0_20,
 
     /// P1 connector pin
     pub p1: P0_03,
@@ -71,6 +76,8 @@ pub struct Microbit {
     pub ppi_ch1: PPI_CH1,
     /// Random number generator
     pub rng: RNG,
+    /// Analog digital converter
+    pub saadc: SAADC,
 }
 
 impl Default for Microbit {
@@ -107,6 +114,8 @@ impl Microbit {
             uarte0: p.UARTE0,
             timer0: p.TIMER0,
             speaker: p.P0_00,
+            microphone: p.P0_05,
+            micen: p.P0_20,
             p1: p.P0_03,
             p2: p.P0_04,
             p8: p.P0_10,
@@ -127,6 +136,7 @@ impl Microbit {
             twispi0: p.TWISPI0,
             pwm0: p.PWM0,
             rng: p.RNG,
+            saadc: p.SAADC,
         }
     }
 }
