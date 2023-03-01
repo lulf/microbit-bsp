@@ -34,7 +34,7 @@ impl<'a> Microphone<'a> {
 
         let mut level = 0;
         self.adc
-            .run_timer_sampler::<u32, _, 1024>(&mut bufs, 727, move |buf| SamplerState::Stopped)
+            .run_timer_sampler::<u32, _, 1024>(&mut bufs, 727, move |buf| CallbackResult::Stop)
             .await;
         self.enable.set_low();
 
