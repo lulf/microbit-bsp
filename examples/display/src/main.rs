@@ -1,16 +1,11 @@
 #![no_std]
 #![no_main]
-#![feature(generic_associated_types)]
-#![feature(type_alias_impl_trait)]
-
-use defmt_rtt as _;
-use panic_probe as _;
-
-use microbit_async::*;
 
 use embassy_executor::Spawner;
 use embassy_futures::select::{select, Either};
 use embassy_time::Duration;
+use microbit_bsp::*;
+use {defmt_rtt as _, panic_probe as _};
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {

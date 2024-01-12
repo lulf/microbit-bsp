@@ -1,11 +1,10 @@
-# microbit-async
+# microbit-bsp
 
-[![CI](https://github.com/lulf/microbit-async/actions/workflows/ci.yaml/badge.svg)](https://github.com/lulf/microbit-async/actions/workflows/ci.yaml)
-[![crates.io](https://img.shields.io/crates/v/microbit-async.svg)](https://crates.io/crates/microbit-async)
-[![docs.rs](https://docs.rs/microbit-async/badge.svg)](https://docs.rs/microbit-async)
-[![Matrix](https://img.shields.io/matrix/drogue-iot:matrix.org)](https://matrix.to/#/#drogue-iot:matrix.org)
+[![CI](https://github.com/lulf/microbit-bsp/actions/workflows/ci.yaml/badge.svg)](https://github.com/lulf/microbit-bsp/actions/workflows/ci.yaml)
+[![crates.io](https://img.shields.io/crates/v/microbit-bsp.svg)](https://crates.io/crates/microbit-bsp)
+[![docs.rs](https://docs.rs/microbit-bsp/badge.svg)](https://docs.rs/microbit-bsp)
 
-microbit-async is a board support package (BSP) library for the BBC micro:bit v2 and newer.
+microbit-bsp is a board support package (BSP) library for the BBC micro:bit v2 and newer.
 
 ## Features
 
@@ -13,27 +12,25 @@ microbit-async is a board support package (BSP) library for the BBC micro:bit v2
 * Uses embassy-nrf HAL for peripherals
 * Rust Async/Await
 
-
 ## Example application
 
 ```
 #![no_std]
 #![no_main]
-#![feature(generic_associated_types)]
-#![feature(type_alias_impl_trait)]
 
-use defmt_rtt as _;
-use panic_probe as _;
+use {defmt_rtt as _, panic_probe as _};
 
-use embassy_microbit::*;
+use microbit_bsp::*;
 
-use embassy_executor::{executor::Spawner, time::Duration};
-use embassy_nrf::Peripherals;
-use embassy_util::{select, Either};
+use {
+    embassy_executor::Spawner,
+    embassy_futures::select::{select, Either},
+    embassy_time::Duration,
+};
 
 #[embassy_executor::main]
-async fn main(_spawner: Spawner, p: Peripherals) {
-    let board = Microbit::new(p);
+async fn main(_spawner: Spawner) {
+    let board = Microbit::default();
 
     let mut display = board.display;
     let mut btn_a = board.btn_a;

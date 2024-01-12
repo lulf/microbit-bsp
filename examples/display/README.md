@@ -1,4 +1,4 @@
-# microbit-async-display-example
+# microbit-bsp-display-example
 
 Demonstrating the use of the LED matrix on the BBC micro:bit.
 

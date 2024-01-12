@@ -56,10 +56,7 @@ impl Bitmap {
 
     /// Create an empty bitmap with nbits bits
     pub const fn empty(nbits: usize) -> Self {
-        Self {
-            data: [0; 1],
-            nbits,
-        }
+        Self { data: [0; 1], nbits }
     }
 
     /// Set bit n in bitmap

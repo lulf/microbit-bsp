@@ -43,13 +43,11 @@ mod bitmaps {
         0b00010,
         0b11111,
         0b00010,
-        0b01100,
+        0b00100,
     ]);
 
     /// Construct a 5x5 frame from a byte slice
-    pub const fn frame_5x5<const XSIZE: usize, const YSIZE: usize>(
-        input: &[u8; 5],
-    ) -> Frame<XSIZE, YSIZE> {
+    pub const fn frame_5x5<const XSIZE: usize, const YSIZE: usize>(input: &[u8; 5]) -> Frame<XSIZE, YSIZE> {
         //assert!(XSIZE == 5);
         //assert!(YSIZE == 5);
         let mut data = [Bitmap::empty(5); YSIZE];
@@ -76,9 +74,7 @@ impl<const XSIZE: usize, const YSIZE: usize> Into<Frame<XSIZE, YSIZE>> for char 
         assert!(YSIZE == 5);
 
         let n = self as usize;
-        if n > pendolino::PRINTABLE_START
-            && n < pendolino::PRINTABLE_START + pendolino::PRINTABLE_COUNT
-        {
+        if n > pendolino::PRINTABLE_START && n < pendolino::PRINTABLE_START + pendolino::PRINTABLE_COUNT {
             frame_5x5(&pendolino::PENDOLINO3[n - pendolino::PRINTABLE_START])
         } else {
             frame_5x5(&[0, 0, 0, 0, 0])

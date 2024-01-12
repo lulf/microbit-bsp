@@ -1,0 +1,18 @@
+[package]
+name = "microbit-bsp"
+version = "0.1.0"
+edition = "2021"
+description = "An embassy-based boards support package (BSP) for BBC Micro:bit v2"
+resolver = "2"
+
+[workspace]
+
+[dependencies]
+embassy-nrf = { version = "0.1.0", default-features = false, features = ["nrf52833", "gpiote", "time-driver-rtc1", "nfc-pins-as-gpio"]}
+embassy-time = { version = "0.3", default-features = false }
+embassy-sync = { version = "0.5", default-features = false }
+cortex-m = "0.7"
+embedded-hal = "1.0"
+lsm303agr = "0.2.2"
+defmt = "0.3"
+futures = { version = "0.3", default-features = false }

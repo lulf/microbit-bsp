@@ -1,10 +1,9 @@
 //! micrphone peripheral
-use embassy_nrf::{
-    gpio::{Level, Output, OutputDrive},
-    interrupt,
-    peripherals::{P0_05, P0_20, SAADC},
-    saadc::*,
-};
+use embassy_nrf::gpio::{Level, Output, OutputDrive};
+use embassy_nrf::interrupt;
+use embassy_nrf::interrupt::typelevel::Binding;
+use embassy_nrf::peripherals::{P0_05, P0_20, SAADC};
+use embassy_nrf::saadc::*;
 use embassy_time::{Duration, Timer};
 
 /// Microphone interface
@@ -14,7 +13,13 @@ pub struct Microphone<'a> {
 }
 
 impl<'a> Microphone<'a> {
-    pub fn new(saadc: SAADC, irq: interrupt::SAADC, mic: P0_05, micen: P0_20) -> Self {
+    /// Create a new microphone instance
+    pub fn new(
+        saadc: SAADC,
+        irq: impl Binding<interrupt::typelevel::SAADC, InterruptHandler> + 'a,
+        mic: P0_05,
+        micen: P0_20,
+    ) -> Self {
         let config = Config::default();
         let mut channel_config = ChannelConfig::single_ended(mic);
         channel_config.gain = Gain::GAIN4;
@@ -32,9 +37,8 @@ impl<'a> Microphone<'a> {
 
         let mut bufs = [[[0; 1]; 1024]; 2];
 
-        let mut level = 0;
         self.adc
-            .run_timer_sampler::<u32, _, 1024>(&mut bufs, 727, move |buf| SamplerState::Stopped)
+            .run_timer_sampler::<u32, _, 1024>(&mut bufs, 727, move |_| CallbackResult::Stop)
             .await;
         self.enable.set_low();
 

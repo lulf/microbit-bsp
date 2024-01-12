@@ -1,20 +1,14 @@
 #![no_std]
 #![no_main]
 #![macro_use]
-#![feature(generic_associated_types)]
-#![feature(type_alias_impl_trait)]
 
 use embassy_executor::Spawner;
-use static_cell::StaticCell;
 use heapless::Vec;
-use microbit_async::*;
-use nrf_softdevice::{
-    ble::{gatt_server, peripheral, Connection},
-    raw, Softdevice,
-};
-
-use defmt_rtt as _;
-use panic_probe as _;
+use microbit_bsp::*;
+use nrf_softdevice::ble::{gatt_server, peripheral, Connection};
+use nrf_softdevice::{raw, Softdevice};
+use static_cell::StaticCell;
+use {defmt_rtt as _, panic_probe as _};
 
 #[nrf_softdevice::gatt_server]
 pub struct Server {
@@ -49,38 +43,25 @@ async fn main(s: Spawner) {
     s.spawn(softdevice_task(sd)).unwrap();
 
     // Starts the bluetooth advertisement and GATT server
-    s.spawn(advertiser_task(s, sd, server, "Embassy Microbit"))
-        .unwrap();
+    s.spawn(advertiser_task(s, sd, server, "Embassy Microbit")).unwrap();
 }
 
 // Up to 2 connections
 #[embassy_executor::task(pool_size = "2")]
 pub async fn gatt_server_task(conn: Connection, server: &'static Server) {
-    match gatt_server::run(&conn, server, |e| match e {
+    gatt_server::run(&conn, server, |e| match e {
         ServerEvent::Bas(e) => match e {
             BatteryServiceEvent::BatteryLevelCccdWrite { notifications } => {
                 defmt::info!("battery notifications: {}", notifications)
             }
         },
     })
-    .await
-    {
-        Ok(_) => {
-            defmt::info!("connection closed");
-        }
-        Err(e) => {
-            defmt::warn!("connection error: {:?}", e);
-        }
-    }
+    .await;
+    defmt::info!("connection closed");
 }
 
 #[embassy_executor::task]
-pub async fn advertiser_task(
-    spawner: Spawner,
-    sd: &'static Softdevice,
-    server: &'static Server,
-    name: &'static str,
-) {
+pub async fn advertiser_task(spawner: Spawner, sd: &'static Softdevice, server: &'static Server, name: &'static str) {
     let mut adv_data: Vec<u8, 31> = Vec::new();
     #[rustfmt::skip]
     adv_data.extend_from_slice(&[
@@ -102,9 +83,7 @@ pub async fn advertiser_task(
             scan_data,
         };
         defmt::debug!("advertising");
-        let conn = peripheral::advertise_connectable(sd, adv, &config)
-            .await
-            .unwrap();
+        let conn = peripheral::advertise_connectable(sd, adv, &config).await.unwrap();
 
         defmt::debug!("connection established");
         if let Err(e) = spawner.spawn(gatt_server_task(conn, server)) {
@@ -126,9 +105,7 @@ fn enable_softdevice(name: &'static str) -> &'static mut Softdevice {
             event_length: 24,
         }),
         conn_gatt: Some(raw::ble_gatt_conn_cfg_t { att_mtu: 128 }),
-        gatts_attr_tab_size: Some(raw::ble_gatts_cfg_attr_tab_size_t {
-            attr_tab_size: 32768,
-        }),
+        gatts_attr_tab_size: Some(raw::ble_gatts_cfg_attr_tab_size_t { attr_tab_size: 32768 }),
         gap_role_count: Some(raw::ble_gap_cfg_role_count_t {
             adv_set_count: 1,
             periph_role_count: 3,
@@ -138,9 +115,7 @@ fn enable_softdevice(name: &'static str) -> &'static mut Softdevice {
             current_len: name.len() as u16,
             max_len: name.len() as u16,
             write_perm: unsafe { core::mem::zeroed() },
-            _bitfield_1: raw::ble_gap_cfg_device_name_t::new_bitfield_1(
-                raw::BLE_GATTS_VLOC_STACK as u8,
-            ),
+            _bitfield_1: raw::ble_gap_cfg_device_name_t::new_bitfield_1(raw::BLE_GATTS_VLOC_STACK as u8),
         }),
         ..Default::default()
     };

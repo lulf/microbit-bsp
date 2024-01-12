@@ -3,12 +3,8 @@ members = [
     "display",
     "ble",
 ]
+resolver = "2"
 
 [patch.crates-io]
-embassy-nrf = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }
-embassy-executor = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }
-embassy-time = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }
-embassy-futures = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }
-embassy-sync = { git = "https://github.com/embassy-rs/embassy.git", branch = "master" }
-nrf-softdevice = { git = "https://github.com/embassy-rs/nrf-softdevice.git", rev = "98dd17e03016cf8f9ff395cc155f9f795c818a50" }
-nrf-softdevice-s113 = { git = "https://github.com/embassy-rs/nrf-softdevice.git", rev = "98dd17e03016cf8f9ff395cc155f9f795c818a50" }
+nrf-softdevice = { git = "https://github.com/embassy-rs/nrf-softdevice.git", rev = "b193eaa1718aeadd3b5eca54f1784aeceba75385" }
+nrf-softdevice-s113 = { git = "https://github.com/embassy-rs/nrf-softdevice.git", rev = "b193eaa1718aeadd3b5eca54f1784aeceba75385" }

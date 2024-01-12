@@ -3,7 +3,7 @@
 //! * Can display 5x5 bitmaps from raw data or characters
 //! * Methods for scrolling text across LED matrix or displaying a bitmap for a duration
 use embassy_time::{block_for, Duration, Instant, Timer};
-use embedded_hal::digital::blocking::OutputPin;
+use embedded_hal::digital::OutputPin;
 
 pub mod fonts;
 
@@ -99,8 +99,7 @@ where
 
         // Adjust interval will impact brightness of the LEDs
         block_for(Duration::from_micros(
-            ((Brightness::MAX.level() - self.brightness.level()) as u64) * 6000
-                / Brightness::MAX.level() as u64,
+            ((Brightness::MAX.level() - self.brightness.level()) as u64) * 6000 / Brightness::MAX.level() as u64,
         ));
 
         self.pin_rows[self.row_p].set_high().ok();
@@ -128,8 +127,7 @@ where
 
     /// Scroll the provided text across the screen within the provided duration
     pub async fn scroll_with_speed(&mut self, text: &str, speed: Duration) {
-        self.animate(text.as_bytes(), AnimationEffect::Slide, speed)
-            .await;
+        self.animate(text.as_bytes(), AnimationEffect::Slide, speed).await;
     }
 
     /// Apply animation based on data with the given effect during the provided duration
@@ -153,12 +151,7 @@ where
     }
 
     /// Animate a slice of frames using the provided effect during the provided duration
-    pub async fn animate_frames(
-        &mut self,
-        data: &[Frame<COLS, ROWS>],
-        effect: AnimationEffect,
-        duration: Duration,
-    ) {
+    pub async fn animate_frames(&mut self, data: &[Frame<COLS, ROWS>], effect: AnimationEffect, duration: Duration) {
         let mut animation: Animation<'_, COLS, ROWS> =
             Animation::new(AnimationData::Frames(data), effect, duration).unwrap();
         loop {
