@@ -7,8 +7,8 @@ use embassy_sync::channel::DynamicSender;
 use embassy_time::{Duration, Ticker};
 use lsm303agr::interface::I2cInterface;
 use lsm303agr::mode::MagOneShot;
-use lsm303agr::{AccelMode, Error as LsmError, Lsm303agr, Status};
-pub use lsm303agr::{AccelOutputDataRate, Measurement};
+use lsm303agr::{AccelMode, Error as LsmError, Lsm303agr, Status, Acceleration};
+pub use lsm303agr::{AccelOutputDataRate};
 
 type I2C<'d> = twim::Twim<'d, TWISPI0>;
 
@@ -33,8 +33,7 @@ impl<'d> Accelerometer<'d> {
 
         let mut sensor = Lsm303agr::new_with_i2c(twi);
         sensor.init()?;
-        sensor.set_accel_odr(AccelOutputDataRate::Hz10)?;
-        sensor.set_accel_mode(AccelMode::Normal)?;
+        sensor.set_accel_mode_and_odr(&mut embassy_time::Delay, AccelMode::Normal, AccelOutputDataRate::Hz10)?;
 
         Ok(Self { sensor })
     }
@@ -47,15 +46,15 @@ impl<'d> Accelerometer<'d> {
     /// Return accelerometer data
     ///
     /// Returned in mg (milli-g) where 1g is 9.8m/s².
-    pub fn accel_data(&mut self) -> Result<Measurement, Error> {
-        self.sensor.accel_data()
+    pub fn accel_data(&mut self) -> Result<Acceleration, Error> {
+        self.sensor.acceleration()
     }
 
     /// Run a continuous task outputing accelerometer data at the configured data rate
     pub async fn run(
         &mut self,
         rate: AccelOutputDataRate,
-        sender: DynamicSender<'_, Measurement>,
+        sender: DynamicSender<'_, Acceleration>,
     ) -> Result<(), Error> {
         let delay = match rate {
             AccelOutputDataRate::Hz1 => Duration::from_millis(1000),
