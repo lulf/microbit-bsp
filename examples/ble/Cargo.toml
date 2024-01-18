@@ -21,3 +21,10 @@ static_cell = "1"
 defmt = "0.3"
 defmt-rtt = "0.4"
 panic-probe = { version = "0.3", features = ["print-defmt"] }
+
+[profile.release]
+debug = 2
+
+[patch.crates-io]
+nrf-softdevice = { git = "https://github.com/embassy-rs/nrf-softdevice.git", rev = "b193eaa1718aeadd3b5eca54f1784aeceba75385" }
+nrf-softdevice-s113 = { git = "https://github.com/embassy-rs/nrf-softdevice.git", rev = "b193eaa1718aeadd3b5eca54f1784aeceba75385" }

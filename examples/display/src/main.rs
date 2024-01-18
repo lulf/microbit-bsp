@@ -21,11 +21,13 @@ async fn main(_spawner: Spawner) {
     loop {
         match select(btn_a.wait_for_low(), btn_b.wait_for_low()).await {
             Either::First(_) => {
+                defmt::info!("A pressed");
                 display
                     .display(display::fonts::ARROW_LEFT, Duration::from_secs(1))
                     .await;
             }
             Either::Second(_) => {
+                defmt::info!("B pressed");
                 display
                     .display(display::fonts::ARROW_RIGHT, Duration::from_secs(1))
                     .await;
