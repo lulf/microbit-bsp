@@ -8,7 +8,7 @@ Demonstrating the use of the LED matrix on the BBC micro:bit.
 Software:
 
 * [`rustup`](https://rustup.rs/)
-* [`probe-run`](https://github.com/knurling-rs/probe-run)
+* [`probe-rs`](https://probe.rs/)
 
 Hardware:
 
