@@ -2,9 +2,6 @@
 name = "microbit-async-display-example"
 version = "0.1.0"
 edition = "2021"
-resolver = "2"
-
-[workspace]
 
 [dependencies]
 microbit-bsp= { path = "../../" }
