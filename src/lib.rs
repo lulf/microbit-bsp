@@ -9,3 +9,7 @@ pub mod accelerometer;
 pub mod display;
 pub mod mic;
 pub mod speaker;
+
+// Re-exports
+
+pub use embassy_nrf;
