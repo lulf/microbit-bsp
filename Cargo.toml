@@ -1,13 +1,12 @@
 [package]
 name = "microbit-bsp"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 description = "An embassy-based boards support package (BSP) for BBC Micro:bit v2"
 license = "MIT OR Apache-2.0"
 keywords = ["embedded", "async", "nordic", "nrf", "microbit"]
 categories = ["embedded", "hardware-support", "no-std", "asynchronous"]
 repository = "https://github.com/lulf/microbit-bsp"
-resolver = "2"
 
 [dependencies]
 embassy-nrf = { version = "0.1.0", features = ["nrf52833", "gpiote", "time-driver-rtc1", "nfc-pins-as-gpio", "time", "defmt"]}
