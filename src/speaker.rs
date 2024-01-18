@@ -1,10 +1,21 @@
 //! Simple speaker utilities for PWM-based synth
 use embassy_nrf::pwm;
 
+/// Represents any pitch
+#[derive(Copy, Clone, PartialEq)]
+#[allow(missing_docs)]
+pub enum Pitch {
+    Silent,
+    Named(NamedPitch),
+    /// Hz
+    Frequency(u32),
+}
+
 /// Pitch for standard scale
 #[allow(dead_code, missing_docs)]
 #[derive(Copy, Clone, PartialEq)]
-pub enum Pitch {
+#[repr(u32)]
+pub enum NamedPitch {
     C0 = 16,
     CS0 = 17,
     D0 = 18,
@@ -113,10 +124,23 @@ pub enum Pitch {
     A8 = 7040,
     AS8 = 7458,
     B8 = 7902,
-    Silent = 0,
 }
 
-/// A note is a pitch + a duration
+impl NamedPitch {
+    /// Turn into Hz
+    #[must_use]
+    pub fn into_frequency(self) -> u32 {
+        self as u32
+    }
+}
+
+impl From<NamedPitch> for Pitch {
+    fn from(value: NamedPitch) -> Self {
+        Self::Named(value)
+    }
+}
+
+/// A note is a pitch + a duration (ms)
 #[derive(Clone, Copy)]
 pub struct Note(pub Pitch, pub u32);
 
@@ -133,17 +157,25 @@ impl<'a, T: pwm::Instance> PwmSpeaker<'a, T> {
 
     /// Play a note
     pub async fn play(&mut self, note: &Note) {
-        use embassy_time::{Duration, Timer};
-        if note.0 != Pitch::Silent {
-            self.pwm.set_prescaler(pwm::Prescaler::Div4);
-            self.pwm.set_period(note.0 as u32);
-            self.pwm.enable();
+        use embassy_time::Timer;
 
-            self.pwm.set_duty(0, self.pwm.max_duty() / 2);
-            Timer::after(Duration::from_millis(u64::from(note.1))).await;
-            self.pwm.disable();
-        } else {
-            Timer::after(Duration::from_millis(u64::from(note.1))).await;
-        }
+        let Note(pitch, duration) = note;
+
+        let frequency = match pitch {
+            Pitch::Silent => {
+                Timer::after_millis(u64::from(*duration)).await;
+                return;
+            }
+            Pitch::Named(n) => n.into_frequency(),
+            Pitch::Frequency(f) => *f,
+        };
+
+        self.pwm.set_prescaler(pwm::Prescaler::Div4);
+        self.pwm.set_period(frequency);
+        self.pwm.enable();
+
+        self.pwm.set_duty(0, self.pwm.max_duty() / 2);
+        Timer::after_millis(u64::from(*duration)).await;
+        self.pwm.disable();
     }
 }

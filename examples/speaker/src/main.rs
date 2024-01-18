@@ -5,14 +5,14 @@ use embassy_executor::Spawner;
 use embassy_time::Timer;
 use microbit_bsp::{
     embassy_nrf::pwm::SimplePwm,
-    speaker::{Note, Pitch, PwmSpeaker},
+    speaker::{NamedPitch, Note, PwmSpeaker},
     Microbit,
 };
 use {defmt_rtt as _, panic_probe as _};
 
-const TUNE: [(Pitch, u32); 18] = {
+const TUNE: [(NamedPitch, u32); 18] = {
     #[allow(clippy::enum_glob_use)]
-    use Pitch::*;
+    use NamedPitch::*;
     [
         (D4, 1),
         (DS4, 1),
@@ -43,8 +43,8 @@ async fn main(_s: Spawner) {
     loop {
         defmt::info!("Playing tune!");
         for (pitch, ticks) in TUNE {
-            speaker.play(&Note(pitch, 200 * ticks)).await;
+            speaker.play(&Note(pitch.into(), 200 * ticks)).await;
         }
-        Timer::after_secs(10).await;
+        Timer::after_secs(5).await;
     }
 }
