@@ -1,7 +1,6 @@
-# microbit-bsp-display-example
+# microbit-bsp-speaker-example
 
-Demonstrating the use of the LED matrix on the BBC micro:bit.
-
+Demonstrating the use of the speaker on the BBC micro:bit.
 
 ## Prerequisites
 

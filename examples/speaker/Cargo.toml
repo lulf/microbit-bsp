@@ -1,5 +1,5 @@
 [package]
-name = "microbit-async-display-example"
+name = "microbit-async-speaker-example"
 version = "0.1.0"
 edition = "2021"
 
