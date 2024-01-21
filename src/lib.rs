@@ -13,3 +13,4 @@ pub mod speaker;
 // Re-exports
 
 pub use embassy_nrf;
+pub use lsm303agr;
