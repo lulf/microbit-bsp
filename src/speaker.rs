@@ -1,5 +1,7 @@
 //! Simple speaker utilities for PWM-based synth
 use embassy_nrf::pwm;
+use embassy_time::{Timer, Delay};
+use embedded_hal::delay::DelayNs;
 
 /// Represents any pitch
 #[derive(Copy, Clone, PartialEq)]
@@ -155,10 +157,20 @@ impl<'a, T: pwm::Instance> PwmSpeaker<'a, T> {
         Self { pwm }
     }
 
+
+    fn start_play(&mut self, frequency: u32) {
+        self.pwm.set_prescaler(pwm::Prescaler::Div4);
+        self.pwm.set_period(frequency);
+        self.pwm.enable();
+        self.pwm.set_duty(0, self.pwm.max_duty() / 2);
+    }
+
+    fn stop_play(&mut self) {
+        self.pwm.disable();
+    }
+
     /// Play a note
     pub async fn play(&mut self, note: &Note) {
-        use embassy_time::Timer;
-
         let Note(pitch, duration) = note;
 
         let frequency = match pitch {
@@ -170,12 +182,27 @@ impl<'a, T: pwm::Instance> PwmSpeaker<'a, T> {
             Pitch::Frequency(f) => *f,
         };
 
-        self.pwm.set_prescaler(pwm::Prescaler::Div4);
-        self.pwm.set_period(frequency);
-        self.pwm.enable();
-
-        self.pwm.set_duty(0, self.pwm.max_duty() / 2);
+        self.start_play(frequency);
         Timer::after_millis(u64::from(*duration)).await;
-        self.pwm.disable();
+        self.stop_play();
+    }
+
+    /// Play a note, blocking variant.
+    pub fn play_blocking(&mut self, note: &Note) {
+        let Note(pitch, duration) = note;
+        let mut delay = Delay;
+
+        let frequency = match pitch {
+            Pitch::Silent => {
+                delay.delay_ms(*duration);
+                return;
+            }
+            Pitch::Named(n) => n.into_frequency(),
+            Pitch::Frequency(f) => *f,
+        };
+
+        self.start_play(frequency);
+        delay.delay_ms(*duration);
+        self.stop_play();
     }
 }
