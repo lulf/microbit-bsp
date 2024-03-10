@@ -169,6 +169,12 @@ where
         }
         self.clear();
     }
+
+    /// Disassemble the `LedMatrix` and return the pins, as
+    /// an array of row pins and an array of column pins.
+    pub fn into_inner(self) -> ([P; ROWS], [P;COLS]) {
+        (self.pin_rows, self.pin_cols)
+    }
 }
 
 /// An effect filter to apply for an animation
