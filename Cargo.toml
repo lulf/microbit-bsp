@@ -8,12 +8,19 @@ keywords = ["embedded", "async", "nordic", "nrf", "microbit"]
 categories = ["embedded", "hardware-support", "no-std", "asynchronous"]
 repository = "https://github.com/lulf/microbit-bsp"
 
+
+
 [dependencies]
-embassy-nrf = { version = "0.1.0", features = ["nrf52833", "gpiote", "time-driver-rtc1", "nfc-pins-as-gpio", "time", "defmt"]}
+embassy-nrf = { version = "0.1.0", features = ["nrf52833","gpiote","time-driver-rtc1","nfc-pins-as-gpio","time"]}
 embassy-time = { version = "0.3", default-features = false }
 embassy-sync = { version = "0.5", default-features = false }
 cortex-m = "0.7"
 embedded-hal = "1.0"
 lsm303agr = "0.3"
-defmt = "0.3"
 futures = { version = "0.3", default-features = false }
+defmt = { version = "0.3", optional = true }
+heapless = "0.8.0"
+
+[features]
+default = ["defmt"]
+defmt = ["dep:defmt", "embassy-nrf/defmt", "heapless/defmt-03"]

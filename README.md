@@ -64,3 +64,7 @@ To run an example:
 cd examples/display
 cargo run --release
 ```
+## Cargo Features
+
+The feature `defmt` is enabled by default, and allows
+some crates to print things.
