@@ -2,8 +2,8 @@ pub use embassy_nrf::config::Config;
 use embassy_nrf::gpio::{AnyPin, Input, Level, Output, OutputDrive, Pin, Pull};
 pub use embassy_nrf::interrupt::Priority;
 use embassy_nrf::peripherals::{
-    P0_00, P0_01, P0_03, P0_04, P0_05, P0_06, P0_08, P0_09, P0_10, P0_12, P0_13, P0_16, P0_17, P0_20, P0_26, P1_00,
-    P1_02, P1_08, PPI_CH0, PPI_CH1, PWM0, RNG, SAADC, TIMER0, TWISPI0, UARTE0,
+    P0_00, P0_01, P0_02, P0_03, P0_04, P0_05, P0_06, P0_08, P0_09, P0_10, P0_12, P0_13, P0_16, P0_17, P0_20, P0_26,
+    P1_00, P1_02, P1_08, PPI_CH0, PPI_CH1, PWM0, PWM1, PWM2, PWM3, RNG, SAADC, TIMER0, TWISPI0, UARTE0,
 };
 pub use embassy_nrf::wdt;
 
@@ -34,6 +34,8 @@ pub struct Microbit {
     /// Microphone pin enable
     pub micen: P0_20,
 
+    /// P0 connector pin
+    pub p0: P0_02,
     /// P1 connector pin
     pub p1: P0_03,
     /// P2 connector pin
@@ -69,6 +71,12 @@ pub struct Microbit {
     pub twispi0: TWISPI0,
     /// PWM0 peripheral
     pub pwm0: PWM0,
+    /// PWM1 peripheral
+    pub pwm1: PWM1,
+    /// PWM2 peripheral
+    pub pwm2: PWM2,
+    /// PWM3 peripheral
+    pub pwm3: PWM3,
     /// PPI channel 0
     pub ppi_ch0: PPI_CH0,
     /// PPI channel 1
@@ -115,6 +123,7 @@ impl Microbit {
             speaker: p.P0_00,
             microphone: p.P0_05,
             micen: p.P0_20,
+            p0: p.P0_02,
             p1: p.P0_03,
             p2: p.P0_04,
             p8: p.P0_10,
@@ -134,6 +143,9 @@ impl Microbit {
             ppi_ch1: p.PPI_CH1,
             twispi0: p.TWISPI0,
             pwm0: p.PWM0,
+            pwm1: p.PWM1,
+            pwm2: p.PWM2,
+            pwm3: p.PWM3,
             rng: p.RNG,
             saadc: p.SAADC,
         }
