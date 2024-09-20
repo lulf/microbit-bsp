@@ -7,8 +7,7 @@ Demonstrating the use of Bluetooth Low Energy (BLE) on the BBC micro:bit.
 Software:
 
 * [`rustup`](https://rustup.rs/)
-* [`probe-run`](https://github.com/knurling-rs/probe-run)
-* [`probe-rs-cli`](https://github.com/probe-rs/probe-rs)
+* [`probe-rs`](https://github.com/probe-rs/probe-rs)
 
 Hardware:
 
@@ -21,7 +20,7 @@ Download the [softdevice](https://www.nordicsemi.com/Products/Development-softwa
 Flash the softdevice onto the micro:bit (only needed the first time you run it):
 
 ```
-probe-rs-cli download s113_nrf52_7.3.0_softdevice.hex --format Hex --chip nRF52833_xxAA
+probe-rs download s113_nrf52_7.3.0_softdevice.hex --binary-format Hex --chip nRF52833_xxAA
 ```
 
 Run the application:

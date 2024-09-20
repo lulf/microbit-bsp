@@ -10,10 +10,10 @@ pub use embassy_nrf::wdt;
 use crate::display::LedMatrix as LedMatrixDriver;
 
 /// LED matrix peripheral for the micro:bit
-pub type LedMatrix = LedMatrixDriver<Output<'static, AnyPin>, 5, 5>;
+pub type LedMatrix = LedMatrixDriver<Output<'static>, 5, 5>;
 
 /// Button 'A'
-pub type Button = Input<'static, AnyPin>;
+pub type Button = Input<'static>;
 
 /// Represents all the peripherals and pins available for the BBC micro:bit.
 pub struct Microbit {
@@ -152,6 +152,6 @@ impl Microbit {
     }
 }
 
-fn output_pin(pin: AnyPin) -> Output<'static, AnyPin> {
+fn output_pin(pin: AnyPin) -> Output<'static> {
     Output::new(pin, Level::Low, OutputDrive::Standard)
 }
