@@ -7,13 +7,13 @@ use embassy_sync::channel::DynamicSender;
 use embassy_time::{Duration, Ticker};
 use lsm303agr::interface::I2cInterface;
 use lsm303agr::mode::MagOneShot;
-use lsm303agr::{AccelMode, Error as LsmError, Lsm303agr, Status, Acceleration};
-pub use lsm303agr::{AccelOutputDataRate};
+use lsm303agr::{AccelMode, Acceleration, Error as LsmError, Lsm303agr, Status};
+pub use lsm303agr::AccelOutputDataRate;
 
 type I2C<'d> = twim::Twim<'d, TWISPI0>;
 
 /// Accelerometer error
-pub type Error = LsmError<twim::Error, ()>;
+pub type Error = LsmError<twim::Error>;
 
 /// Accelerometer peripheral present on the microbit
 pub struct Accelerometer<'d> {

@@ -9,7 +9,7 @@ use embassy_time::{Duration, Timer};
 /// Microphone interface
 pub struct Microphone<'a> {
     adc: Saadc<'a, 1>,
-    enable: Output<'a, P0_20>,
+    enable: Output<'a>,
 }
 
 impl<'a> Microphone<'a> {
