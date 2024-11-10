@@ -3,7 +3,7 @@
 
 use {defmt_rtt as _, panic_probe as _};
 
-use defmt::{error, info, unwrap};
+use defmt::{error, info};
 use embassy_executor::Spawner;
 use embassy_futures::join::join3;
 use embassy_time::{Duration, Timer};
