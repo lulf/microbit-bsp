@@ -7,8 +7,7 @@ resolver = "2"
 [dependencies]
 embassy-executor = { version = "0.6", default-features = false, features = ["arch-cortex-m", "executor-thread", "defmt", "integrated-timers", "executor-interrupt", "task-arena-size-32768"] }
 embassy-time = { version = "0.3", default-features = false, features = ["defmt", "defmt-timestamp-uptime"] }
-embassy-nrf = { version = "0.2", default-features = false, features = ["defmt", "time-driver-rtc1", "gpiote", "unstable-pac", "rt", "nrf52833"] }
-# microbit-bsp = { path = "../../" }
+microbit-bsp = { path = "../../", features = ["trouble"]}
 embassy-futures = "0.1.1"
 embassy-sync = { version = "0.6", features = ["defmt"] }
 
