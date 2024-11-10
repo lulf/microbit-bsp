@@ -151,13 +151,19 @@ where
             );
             mpsl::MultiprotocolServiceLayer::new(p, Irqs, Self::LF_CLOCK_CONFIG)
         }?;
-        static SDC_RNG: StaticCell<rng::Rng<'static, peripherals::RNG>> = StaticCell::new();
-        let rng = SDC_RNG.init(rng::Rng::new(rng, Irqs));
-        static SDC_MEM: StaticCell<sdc::Mem<SDC_MEMORY_SIZE>> = StaticCell::new();
-        let mem = SDC_MEM.init(self.sdc_mem);
-        static MPSL: StaticCell<MultiprotocolServiceLayer> = StaticCell::new();
-        let mpsl = MPSL.init(mpsl);
-        let sdc = build_sdc(self.sdc_peripherals, rng, mpsl, mem)?;
+        let sdc_rng = {
+            static SDC_RNG: StaticCell<rng::Rng<'static, peripherals::RNG>> = StaticCell::new();
+            SDC_RNG.init(rng::Rng::new(rng, Irqs))
+        };
+        let mem = {
+            static SDC_MEM: StaticCell<sdc::Mem<SDC_MEMORY_SIZE>> = StaticCell::new();
+            SDC_MEM.init(self.sdc_mem)
+        };
+        let mpsl = {
+            static MPSL: StaticCell<MultiprotocolServiceLayer> = StaticCell::new();
+            MPSL.init(mpsl)
+        };
+        let sdc = build_sdc(self.sdc_peripherals, sdc_rng, mpsl, mem)?;
         Ok((sdc, mpsl))
     }
 }
