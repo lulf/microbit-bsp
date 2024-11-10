@@ -47,7 +47,7 @@ async fn main(spawner: Spawner) {
         .ble
         .init(board.timer0, board.rng)
         .expect("BLE Stack failed to initialize");
-    spawner.must_spawn(mpsl_task(&*mpsl));
+    spawner.must_spawn(mpsl_task(mpsl));
 
     run(sdc).await;
 }
