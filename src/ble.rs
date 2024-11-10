@@ -1,6 +1,10 @@
+//! nRF Softdevice Controller Configuration for Bluetooth Peripheral
+//!
+//! Used with `trouble-host` crate.
+
 use embassy_nrf::peripherals;
 use embassy_nrf::{bind_interrupts, pac, rng, Peripheral};
-use nrf_sdc::mpsl::MultiprotocolServiceLayer;
+pub use nrf_sdc::mpsl::MultiprotocolServiceLayer;
 use nrf_sdc::{self as sdc, mpsl, SoftdeviceController};
 use static_cell::StaticCell;
 

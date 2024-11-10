@@ -7,8 +7,7 @@ use defmt::{error, info};
 use embassy_executor::Spawner;
 use embassy_futures::join::join3;
 use embassy_time::{Duration, Timer};
-use microbit_bsp::{Config, Microbit};
-use nrf_sdc::mpsl::MultiprotocolServiceLayer;
+use microbit_bsp::{ble::MultiprotocolServiceLayer, Config, Microbit};
 use trouble_host::prelude::*;
 
 /// Size of L2CAP packets (ATT MTU is this - 4)

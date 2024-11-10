@@ -16,4 +16,4 @@ pub use embassy_nrf;
 pub use lsm303agr;
 
 #[cfg(feature = "trouble")]
-mod ble;
+pub mod ble;
