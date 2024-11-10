@@ -4,8 +4,12 @@ use nrf_sdc::mpsl::MultiprotocolServiceLayer;
 use nrf_sdc::{self as sdc, mpsl, SoftdeviceController};
 use static_cell::StaticCell;
 
-const SDC_MEMORY_SIZE: usize = 3312;
+/// Default memory allocation for softdevice controller in bytes.
+/// - Minimum 2168 bytes,
+/// - maximum associated with [task-arena-size](https://docs.embassy.dev/embassy-executor/git/cortex-m/index.html)
+const SDC_MEMORY_SIZE: usize = 3312; // bytes
 
+/// Softdevice Bluetooth Controller Builder.
 pub struct BleControllerBuilder<'d> {
     /// Softdevice Controller peripherals
     sdc_peripherals: sdc::Peripherals<'d>,
@@ -94,11 +98,46 @@ where
             ppi_ch31,
         }
     }
+    /// Initialize the nRF `Softdevice Controller` (sdc) and the `Multiprotocol Service Layer` (mpsl).
+    ///
+    /// These objects allow interaction with the Bluetooth antenna on the micro:bit.
+    /// See [example](https://github.com/lulf/microbit-bsp/tree/main/examples/trouble) for more details.
+    ///
+    /// ## Example:
+    ///
+    /// ```rust [ignore]
+    /// #![no_std]
+    /// #![no_main]
+    ///
+    /// use {defmt_rtt as _, panic_probe as _};
+    ///
+    /// use embassy_executor::Spawner;
+    /// use microbit_bsp::{Config, Microbit};
+    /// use nrf_sdc::mpsl::MultiprotocolServiceLayer;
+    /// use trouble_host::prelude::*;
+    ///
+    /// #[embassy_executor::task]
+    /// async fn mpsl_task(mpsl: &'static MultiprotocolServiceLayer<'static>) -> ! {
+    ///     mpsl.run().await
+    /// }
+    ///
+    /// #[embassy_executor::main]
+    /// async fn main(spawner: Spawner) {
+    ///     let board = Microbit::new(Config::default());
+    ///     let (sdc, mpsl) = board
+    ///         .ble
+    ///         .init(board.timer0, board.rng)
+    ///         .expect("BLE Stack failed to initialize");
+    ///     spawner.must_spawn(mpsl_task(&*mpsl));
+    ///
+    ///     run(sdc).await;
+    /// }
+    /// ```
     pub fn init(
         self,
         timer0: impl Peripheral<P = peripherals::TIMER0> + 'd,
         rng: impl Peripheral<P = peripherals::RNG> + 'd,
-    ) -> (SoftdeviceController<'d>, &'static MultiprotocolServiceLayer<'d>) {
+    ) -> Result<(SoftdeviceController<'d>, &'static MultiprotocolServiceLayer<'d>), nrf_sdc::Error> {
         let mpsl = {
             let p = mpsl::Peripherals::new(
                 self.clock,
@@ -111,20 +150,19 @@ where
                 self.ppi_ch31,
             );
             mpsl::MultiprotocolServiceLayer::new(p, Irqs, Self::LF_CLOCK_CONFIG)
-        }
-        .expect("Failed to initialize MPSL");
+        }?;
         static SDC_RNG: StaticCell<rng::Rng<'static, peripherals::RNG>> = StaticCell::new();
         let rng = SDC_RNG.init(rng::Rng::new(rng, Irqs));
         static SDC_MEM: StaticCell<sdc::Mem<SDC_MEMORY_SIZE>> = StaticCell::new();
         let mem = SDC_MEM.init(self.sdc_mem);
         static MPSL: StaticCell<MultiprotocolServiceLayer> = StaticCell::new();
         let mpsl = MPSL.init(mpsl);
-        let sdc =
-            build_sdc(self.sdc_peripherals, rng, mpsl, mem).expect("Failed to initialize Nordic Softdevice Controller");
-        (sdc, mpsl)
+        let sdc = build_sdc(self.sdc_peripherals, rng, mpsl, mem)?;
+        Ok((sdc, mpsl))
     }
 }
 
+/// Build the Softdevice Controller layer to pass to trouble-host
 fn build_sdc<'d, const N: usize>(
     p: nrf_sdc::Peripherals<'d>,
     rng: &'d mut rng::Rng<peripherals::RNG>,
