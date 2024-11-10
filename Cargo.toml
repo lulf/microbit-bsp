@@ -20,7 +20,7 @@ futures = { version = "0.3", default-features = false }
 defmt = { version = "0.3", optional = true }
 heapless = "0.8.0"
 
-# TrouBLE dependencies
+# trouble bluetooth dependencies
 nrf-sdc = { version = "0.1.0", default-features = false, features = ["defmt", "peripheral", "central", "nrf52833"], optional = true}
 nrf-mpsl = { version = "0.1.0", default-features = false, features = ["defmt", "critical-section-impl"], optional = true }
 static_cell = { version = "2", optional = true }

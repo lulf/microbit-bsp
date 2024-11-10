@@ -43,7 +43,10 @@ async fn mpsl_task(mpsl: &'static MultiprotocolServiceLayer<'static>) -> ! {
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
     let board = Microbit::new(Config::default());
-    let (sdc, mpsl) = board.ble.init(board.timer0, board.rng);
+    let (sdc, mpsl) = board
+        .ble
+        .init(board.timer0, board.rng)
+        .expect("BLE Stack failed to initialize");
     spawner.must_spawn(mpsl_task(&*mpsl));
 
     run(sdc).await;
@@ -64,7 +67,7 @@ where
     let server = Server::new_with_config(
         stack,
         GapConfig::Peripheral(PeripheralConfig {
-            name: "TrouBLE",
+            name: "Trouble",
             appearance: &appearance::GENERIC_POWER,
         }),
     );
