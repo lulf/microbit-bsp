@@ -5,7 +5,7 @@
 use embassy_nrf::peripherals;
 use embassy_nrf::{bind_interrupts, pac, rng, Peripheral};
 use nrf_sdc::{self as sdc, mpsl};
-pub use nrf_sdc::{mpsl::MultiprotocolServiceLayer, SoftdeviceController};
+pub use nrf_sdc::{mpsl::MultiprotocolServiceLayer, Error as SoftdeviceError, SoftdeviceController};
 use static_cell::StaticCell;
 
 /// Default memory allocation for softdevice controller in bytes.
