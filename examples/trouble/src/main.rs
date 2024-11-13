@@ -69,7 +69,8 @@ where
             name: "Trouble",
             appearance: &appearance::GENERIC_POWER,
         }),
-    );
+    )
+    .expect("Failed to create GATT server");
 
     info!("Starting advertising and GATT service");
     let _ = join3(
@@ -87,13 +88,17 @@ async fn ble_task<C: Controller>(mut runner: Runner<'_, C>) -> Result<(), BleHos
 async fn gatt_task<C: Controller>(server: &Server<'_, '_, C>) {
     loop {
         match server.next().await {
-            Ok(GattEvent::Write { handle, connection: _ }) => {
-                let _ = server.get(handle, |value| {
-                    info!("[gatt] Write event on {:?}. Value written: {:?}", handle, value);
-                });
+            Ok(GattEvent::Write {
+                value_handle,
+                connection: _,
+            }) => {
+                info!("[gatt] Write event on {:?}", value_handle);
             }
-            Ok(GattEvent::Read { handle, connection: _ }) => {
-                info!("[gatt] Read event on {:?}", handle);
+            Ok(GattEvent::Read {
+                value_handle,
+                connection: _,
+            }) => {
+                info!("[gatt] Read event on {:?}", value_handle);
             }
             Err(e) => {
                 error!("[gatt] Error processing GATT events: {:?}", e);
@@ -134,7 +139,7 @@ async fn advertise_task<C: Controller>(
             Timer::after(Duration::from_secs(2)).await;
             tick = tick.wrapping_add(1);
             info!("[adv] notifying connection of tick {}", tick);
-            let _ = server.notify(server.battery_service.level, &conn, &[tick]).await;
+            let _ = server.notify(&server.battery_service.level, &conn, &tick).await;
         }
     }
 }
