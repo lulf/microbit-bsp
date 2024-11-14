@@ -14,7 +14,7 @@ microbit-bsp is a board support package (BSP) library for the BBC micro:bit v2 a
 
 ## Example application
 
-```
+```rust
 #![no_std]
 #![no_main]
 
@@ -60,10 +60,11 @@ async fn main(_spawner: Spawner) {
 
 To run an example:
 
-```
+```bash
 cd examples/display
 cargo run --release
 ```
+
 ## Cargo Features
 
 The feature `defmt` is enabled by default, and allows

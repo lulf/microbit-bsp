@@ -14,3 +14,6 @@ pub mod speaker;
 
 pub use embassy_nrf;
 pub use lsm303agr;
+
+#[cfg(feature = "trouble")]
+pub mod ble;
