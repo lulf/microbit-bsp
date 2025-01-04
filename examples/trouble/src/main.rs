@@ -3,10 +3,10 @@
 
 use {defmt_rtt as _, panic_probe as _};
 
-use defmt::{error, info};
+use defmt::{info, warn};
 use embassy_executor::Spawner;
-use embassy_futures::join::join3;
-use embassy_time::{Duration, Timer};
+use embassy_futures::select::select;
+use embassy_time::Timer;
 use microbit_bsp::{ble::MultiprotocolServiceLayer, Config, Microbit};
 use trouble_host::prelude::*;
 
@@ -22,7 +22,7 @@ const L2CAP_CHANNELS_MAX: usize = 2; // Signal + att
 type Resources<C> = HostResources<C, CONNECTIONS_MAX, L2CAP_CHANNELS_MAX, L2CAP_MTU>;
 
 // GATT Server definition
-#[gatt_server(attribute_data_size = 10)]
+#[gatt_server]
 struct Server {
     battery_service: BatteryService,
 }
@@ -59,87 +59,122 @@ where
     info!("Our address = {:?}", address);
 
     let mut resources = Resources::new(PacketQos::None);
-    let (stack, peripheral, _, runner) = trouble_host::new(controller, &mut resources)
+    let (_, mut peripheral, _, runner) = trouble_host::new(controller, &mut resources)
         .set_random_address(address)
         .build();
 
-    let server = Server::new_with_config(
-        stack,
-        GapConfig::Peripheral(PeripheralConfig {
-            name: "Trouble",
-            appearance: &appearance::GENERIC_POWER,
-        }),
-    )
+    let server = Server::new_with_config(GapConfig::Peripheral(PeripheralConfig {
+        name: "Trouble",
+        appearance: &appearance::power_device::GENERIC_POWER_DEVICE,
+    }))
     .expect("Failed to create GATT server");
-
-    info!("Starting advertising and GATT service");
-    let _ = join3(
-        ble_task(runner),
-        gatt_task(&server),
-        advertise_task(peripheral, &server),
-    )
-    .await;
+    let app_task = async {
+        loop {
+            match advertise("Trouble Example", &mut peripheral).await {
+                Ok(conn) => {
+                    // set up tasks when the connection is established to a central, so they don't run when no one is connected.
+                    let connection_task = conn_task(&server, &conn);
+                    let counter_task = counter_task(&server, &conn);
+                    // run until any task ends (usually because the connection has been closed),
+                    // then return to advertising state.
+                    select(connection_task, counter_task).await;
+                }
+                Err(e) => {
+                    let e = defmt::Debug2Format(&e);
+                    panic!("[adv] error: {:?}", e);
+                }
+            }
+        }
+    };
+    select(ble_task(runner), app_task).await;
 }
 
 async fn ble_task<C: Controller>(mut runner: Runner<'_, C>) -> Result<(), BleHostError<C::Error>> {
     runner.run().await
 }
 
-async fn gatt_task<C: Controller>(server: &Server<'_, '_, C>) {
+/// Stream Events until the connection closes.
+async fn conn_task(server: &Server<'_>, conn: &Connection<'_>) -> Result<(), Error> {
+    let level = server.battery_service.level;
     loop {
-        match server.next().await {
-            Ok(GattEvent::Write {
-                value_handle,
-                connection: _,
-            }) => {
-                info!("[gatt] Write event on {:?}", value_handle);
+        match conn.next().await {
+            ConnectionEvent::Disconnected { reason } => {
+                info!("[gatt] disconnected: {:?}", reason);
+                break;
             }
-            Ok(GattEvent::Read {
-                value_handle,
-                connection: _,
-            }) => {
-                info!("[gatt] Read event on {:?}", value_handle);
-            }
-            Err(e) => {
-                error!("[gatt] Error processing GATT events: {:?}", e);
+            ConnectionEvent::Gatt { data } => {
+                // We can choose to handle event directly without an attribute table
+                // let req = data.request();
+                // ..
+                // data.reply(conn, Ok(AttRsp::Error { .. }))
+
+                // But to simplify things, process it in the GATT server that handles
+                // the protocol details
+                match data.process(server).await {
+                    // Server processing emits
+                    Ok(Some(GattEvent::Read(event))) => {
+                        if event.handle() == level.handle {
+                            let value = server.get(&level);
+                            info!("[gatt] Read Event to Level Characteristic: {:?}", value);
+                        }
+                    }
+                    Ok(Some(GattEvent::Write(event))) => {
+                        if event.handle() == level.handle {
+                            info!("[gatt] Write Event to Level Characteristic: {:?}", event.data());
+                        }
+                    }
+                    Ok(_) => {}
+                    Err(e) => {
+                        warn!("[gatt] error processing event: {:?}", e);
+                    }
+                }
             }
         }
     }
+    info!("[gatt] task finished");
+    Ok(())
 }
 
-async fn advertise_task<C: Controller>(
-    mut peripheral: Peripheral<'_, C>,
-    server: &Server<'_, '_, C>,
-) -> Result<(), BleHostError<C::Error>> {
-    let mut adv_data = [0; 31];
+/// Create an advertiser to use to connect to a BLE Central, and wait for it to connect.
+async fn advertise<'a, C: Controller>(
+    name: &'a str,
+    peripheral: &mut Peripheral<'a, C>,
+) -> Result<Connection<'a>, BleHostError<C::Error>> {
+    let mut advertiser_data = [0; 31];
     AdStructure::encode_slice(
         &[
             AdStructure::Flags(LE_GENERAL_DISCOVERABLE | BR_EDR_NOT_SUPPORTED),
             AdStructure::ServiceUuids16(&[Uuid::Uuid16([0x0f, 0x18])]),
-            AdStructure::CompleteLocalName(b"Trouble"),
+            AdStructure::CompleteLocalName(name.as_bytes()),
         ],
-        &mut adv_data[..],
+        &mut advertiser_data[..],
     )?;
+    let advertiser = peripheral
+        .advertise(
+            &Default::default(),
+            Advertisement::ConnectableScannableUndirected {
+                adv_data: &advertiser_data[..],
+                scan_data: &[],
+            },
+        )
+        .await?;
+    info!("[adv] advertising");
+    let conn = advertiser.accept().await?;
+    info!("[adv] connection established");
+    Ok(conn)
+}
+
+/// Example task to use the BLE notifier interface.
+async fn counter_task(server: &Server<'_>, conn: &Connection<'_>) {
+    let mut tick: u8 = 0;
+    let level = server.battery_service.level;
     loop {
-        info!("[adv] advertising");
-        let mut advertiser = peripheral
-            .advertise(
-                &Default::default(),
-                Advertisement::ConnectableScannableUndirected {
-                    adv_data: &adv_data[..],
-                    scan_data: &[],
-                },
-            )
-            .await?;
-        let conn = advertiser.accept().await?;
-        info!("[adv] connection established");
-        // Keep connection alive
-        let mut tick: u8 = 0;
-        while conn.is_connected() {
-            Timer::after(Duration::from_secs(2)).await;
-            tick = tick.wrapping_add(1);
-            info!("[adv] notifying connection of tick {}", tick);
-            let _ = server.notify(&server.battery_service.level, &conn, &tick).await;
-        }
+        tick = tick.wrapping_add(1);
+        info!("[adv] notifying connection of tick {}", tick);
+        if level.notify(server, conn, &tick).await.is_err() {
+            info!("[adv] error notifying connection");
+            break;
+        };
+        Timer::after_secs(2).await;
     }
 }
