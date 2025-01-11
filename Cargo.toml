@@ -1,6 +1,6 @@
 [package]
 name = "microbit-bsp"
-version = "0.4.1"
+version = "0.5.0"
 edition = "2021"
 description = "An embassy-based boards support package (BSP) for BBC Micro:bit v2"
 license = "MIT OR Apache-2.0"
@@ -10,7 +10,7 @@ repository = "https://github.com/lulf/microbit-bsp"
 
 
 [dependencies]
-embassy-nrf = { version = "0.2.0", features = ["nrf52833","gpiote","time-driver-rtc1","nfc-pins-as-gpio","time"] }
+embassy-nrf = { version = "0.3.1", features = ["nrf52833","gpiote","time-driver-rtc1","nfc-pins-as-gpio","time"] }
 embassy-time = { version = "0.3", default-features = false }
 embassy-sync = { version = "0.6", default-features = false }
 cortex-m = "0.7"
@@ -23,14 +23,13 @@ heapless = "0.8.0"
 # trouble bluetooth dependencies
 nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc.git", default-features = false, features = [
     "defmt", 
-    "peripheral", 
-    "central", 
+    "peripheral",
     "nrf52833"
-], rev = "3702af909d31cd81c62f15e1aa9d5f637ec935fa", optional = true}
+], rev = "551a95436e999b4290b4a33383aa3d6747b63dd9", optional = true}
 nrf-mpsl = {  git = "https://github.com/alexmoon/nrf-sdc.git", default-features = false, features = [
     "defmt", 
     "critical-section-impl"
-], rev = "3702af909d31cd81c62f15e1aa9d5f637ec935fa", optional = true }
+], rev = "551a95436e999b4290b4a33383aa3d6747b63dd9", optional = true }
 static_cell = { version = "2", optional = true }
 
 
