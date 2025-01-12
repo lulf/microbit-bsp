@@ -59,29 +59,33 @@ pub async fn run<C>(controller: C)
 where
     C: Controller,
 {
-    let address = Address::random([0x41, 0x5A, 0xE3, 0x1E, 0x83, 0xE7]);
+    // Using a fixed "random" address can be useful for testing. In real scenarios, one would
+    // use e.g. the MAC 6 byte array as the address (how to get that varies by the platform).
+    let address = Address::random([0x42, 0x6A, 0xE3, 0x1E, 0x83, 0xE7]);
     info!("Our address = {:?}", address);
 
     let mut resources = Resources::new(PacketQos::None);
-    let (_, mut peripheral, _, runner) = trouble_host::new(controller, &mut resources)
+    let (stack, mut peripheral, _, runner) = trouble_host::new(controller, &mut resources)
         .set_random_address(address)
         .build();
 
+    info!("Starting advertising and GATT service");
     let server = Server::new_with_config(GapConfig::Peripheral(PeripheralConfig {
         name: "Trouble",
         appearance: &appearance::power_device::GENERIC_POWER_DEVICE,
     }))
     .expect("Failed to create GATT server");
+
     let app_task = async {
         loop {
             match advertise("Trouble Example", &mut peripheral).await {
                 Ok(conn) => {
                     // set up tasks when the connection is established to a central, so they don't run when no one is connected.
-                    let connection_task = conn_task(&server, &conn);
-                    let counter_task = counter_task(&server, &conn);
+                    let a = gatt_events_task(&server, &conn);
+                    let b = custom_task(&server, &conn, stack);
                     // run until any task ends (usually because the connection has been closed),
                     // then return to advertising state.
-                    select(connection_task, counter_task).await;
+                    select(a, b).await;
                 }
                 Err(e) => {
                     let e = defmt::Debug2Format(&e);
@@ -93,12 +97,16 @@ where
     select(ble_task(runner), app_task).await;
 }
 
+/// This is a background task that is required to run forever alongside any other BLE tasks.
 async fn ble_task<C: Controller>(mut runner: Runner<'_, C>) -> Result<(), BleHostError<C::Error>> {
     runner.run().await
 }
 
 /// Stream Events until the connection closes.
-async fn conn_task(server: &Server<'_>, conn: &Connection<'_>) -> Result<(), Error> {
+///
+/// This function will handle the GATT events and process them.
+/// This is how we interact with read and write requests.
+async fn gatt_events_task(server: &Server<'_>, conn: &Connection<'_>) -> Result<(), Error> {
     let level = server.battery_service.level;
     loop {
         match conn.next().await {
@@ -169,14 +177,24 @@ async fn advertise<'a, C: Controller>(
 }
 
 /// Example task to use the BLE notifier interface.
-async fn counter_task(server: &Server<'_>, conn: &Connection<'_>) {
+/// This task will notify the connected central of a counter value every 2 seconds.
+/// It will also read the RSSI value every 2 seconds.
+/// and will stop when the connection is closed by the central or an error occurs.
+async fn custom_task<C: Controller>(server: &Server<'_>, conn: &Connection<'_>, stack: Stack<'_, C>) {
     let mut tick: u8 = 0;
     let level = server.battery_service.level;
     loop {
         tick = tick.wrapping_add(1);
-        info!("[adv] notifying connection of tick {}", tick);
+        info!("[custom_task] notifying connection of tick {}", tick);
         if level.notify(server, conn, &tick).await.is_err() {
-            info!("[adv] error notifying connection");
+            info!("[custom_task] error notifying connection");
+            break;
+        };
+        // read RSSI (Received Signal Strength Indicator) of the connection.
+        if let Ok(rssi) = conn.rssi(stack).await {
+            info!("[custom_task] RSSI: {:?}", rssi);
+        } else {
+            info!("[custom_task] error getting RSSI");
             break;
         };
         Timer::after_secs(2).await;
