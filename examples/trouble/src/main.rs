@@ -28,10 +28,14 @@ struct Server {
 }
 
 // Battery service
-#[gatt_service(uuid = "180f")]
+#[gatt_service(uuid = service::BATTERY)]
 struct BatteryService {
-    #[characteristic(uuid = "2a19", read, notify)]
+    #[descriptor(uuid = descriptors::VALID_RANGE, read, value = [0, 100])]
+    #[descriptor(uuid = descriptors::MEASUREMENT_DESCRIPTION, read, value = "Battery Level")]
+    #[characteristic(uuid = characteristic::BATTERY_LEVEL, read, notify)]
     level: u8,
+    #[characteristic(uuid = "408813df-5dd4-1f87-ec11-cdb001100000", write, read, notify)]
+    status: bool,
 }
 
 #[embassy_executor::task]

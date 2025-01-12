@@ -1,5 +1,5 @@
 //! Accelerometer for the micro:bit
-use embassy_nrf::interrupt::typelevel::{Binding, SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0};
+use embassy_nrf::interrupt::typelevel::{self, Binding};
 use embassy_nrf::peripherals::{P0_08, P0_16, TWISPI0};
 use embassy_nrf::twim;
 use embassy_nrf::twim::InterruptHandler;
@@ -7,8 +7,8 @@ use embassy_sync::channel::DynamicSender;
 use embassy_time::{Duration, Ticker};
 use lsm303agr::interface::I2cInterface;
 use lsm303agr::mode::MagOneShot;
-use lsm303agr::{AccelMode, Acceleration, Error as LsmError, Lsm303agr, Status};
 pub use lsm303agr::AccelOutputDataRate;
+use lsm303agr::{AccelMode, Acceleration, Error as LsmError, Lsm303agr, Status};
 
 type I2C<'d> = twim::Twim<'d, TWISPI0>;
 
@@ -24,7 +24,7 @@ impl<'d> Accelerometer<'d> {
     /// Create and initialize the accelerometer
     pub fn new(
         twispi0: TWISPI0,
-        irq: impl Binding<SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0, InterruptHandler<TWISPI0>> + 'd,
+        irq: impl Binding<typelevel::TWISPI0, InterruptHandler<TWISPI0>> + 'd,
         sda: P0_16,
         scl: P0_08,
     ) -> Result<Self, Error> {

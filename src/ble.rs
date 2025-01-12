@@ -3,15 +3,14 @@
 //! Used with `trouble-host` crate.
 
 use embassy_nrf::peripherals;
-use embassy_nrf::{bind_interrupts, pac, rng, Peripheral};
+use embassy_nrf::{bind_interrupts, rng, Peripheral};
 use nrf_sdc::{self as sdc, mpsl};
 pub use nrf_sdc::{mpsl::MultiprotocolServiceLayer, Error as SoftdeviceError, SoftdeviceController};
 use static_cell::StaticCell;
 
 /// Default memory allocation for softdevice controller in bytes.
-/// - Minimum 2168 bytes,
 /// - maximum associated with [task-arena-size](https://docs.embassy.dev/embassy-executor/git/cortex-m/index.html)
-const SDC_MEMORY_SIZE: usize = 3312; // bytes
+const SDC_MEMORY_SIZE: usize = 1448; // bytes
 
 /// Softdevice Bluetooth Controller Builder.
 pub struct BleControllerBuilder<'d> {
@@ -20,8 +19,6 @@ pub struct BleControllerBuilder<'d> {
     /// Softdevice Controller memory
     sdc_mem: sdc::Mem<SDC_MEMORY_SIZE>,
     // Required peripherals for the Multiprotocol Service Layer (MPSL)
-    clock: pac::CLOCK,
-    radio: pac::RADIO,
     rtc0: peripherals::RTC0,
     temp: peripherals::TEMP,
     ppi_ch19: peripherals::PPI_CH19,
@@ -31,8 +28,8 @@ pub struct BleControllerBuilder<'d> {
 
 bind_interrupts!(struct Irqs {
     RNG => rng::InterruptHandler<peripherals::RNG>;
-    SWI0_EGU0 => nrf_sdc::mpsl::LowPrioInterruptHandler;
-    POWER_CLOCK => nrf_sdc::mpsl::ClockInterruptHandler;
+    EGU0_SWI0 => nrf_sdc::mpsl::LowPrioInterruptHandler;
+    CLOCK_POWER => nrf_sdc::mpsl::ClockInterruptHandler;
     RADIO => nrf_sdc::mpsl::HighPrioInterruptHandler;
     TIMER0 => nrf_sdc::mpsl::HighPrioInterruptHandler;
     RTC0 => nrf_sdc::mpsl::HighPrioInterruptHandler;
@@ -70,31 +67,16 @@ where
         ppi_ch30: peripherals::PPI_CH30,
         ppi_ch31: peripherals::PPI_CH31,
     ) -> Self {
-        let pac_peripherals = pac::Peripherals::take().expect("pac::Peripherals is not initialized");
         // Softdevice Controller peripherals
         let sdc_peripherals = sdc::Peripherals::new(
-            pac_peripherals.ECB,
-            pac_peripherals.AAR,
-            ppi_ch17,
-            ppi_ch18,
-            ppi_ch20,
-            ppi_ch21,
-            ppi_ch22,
-            ppi_ch23,
-            ppi_ch24,
-            ppi_ch25,
-            ppi_ch26,
-            ppi_ch27,
-            ppi_ch28,
-            ppi_ch29,
+            ppi_ch17, ppi_ch18, ppi_ch20, ppi_ch21, ppi_ch22, ppi_ch23, ppi_ch24, ppi_ch25, ppi_ch26, ppi_ch27,
+            ppi_ch28, ppi_ch29,
         );
 
         let sdc_mem = sdc::Mem::<SDC_MEMORY_SIZE>::new();
         Self {
             sdc_peripherals,
             sdc_mem,
-            clock: pac_peripherals.CLOCK,
-            radio: pac_peripherals.RADIO,
             rtc0,
             temp,
             ppi_ch19,
@@ -132,7 +114,7 @@ where
     ///         .ble
     ///         .init(board.timer0, board.rng)
     ///         .expect("BLE Stack failed to initialize");
-    ///     spawner.must_spawn(mpsl_task(&*mpsl));
+    ///     spawner.must_spawn(mpsl_task(mpsl));
     ///
     ///     run(sdc).await;
     /// }
@@ -144,8 +126,6 @@ where
     ) -> Result<(SoftdeviceController<'d>, &'static MultiprotocolServiceLayer<'d>), nrf_sdc::Error> {
         let mpsl = {
             let p = mpsl::Peripherals::new(
-                self.clock,
-                self.radio,
                 self.rtc0,
                 timer0,
                 self.temp,

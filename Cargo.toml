@@ -7,33 +7,52 @@ license = "MIT OR Apache-2.0"
 keywords = ["embedded", "async", "nordic", "nrf", "microbit"]
 categories = ["embedded", "hardware-support", "no-std", "asynchronous"]
 repository = "https://github.com/lulf/microbit-bsp"
+rust-version = "1.83"
 
 
 [dependencies]
-embassy-nrf = { version = "0.3.1", features = ["nrf52833","gpiote","time-driver-rtc1","nfc-pins-as-gpio","time"] }
-embassy-time = { version = "0.3", default-features = false }
-embassy-sync = { version = "0.6", default-features = false }
-cortex-m = "0.7"
+embassy-nrf = { version = "0.3", default-features = false, features = [
+    "gpiote",
+    "nfc-pins-as-gpio",
+    "nrf52833",
+    "time-driver-rtc1",
+] }
+embassy-time = { version = "0.4", default-features = false }
+embassy-sync = { version = "0.6" }
+cortex-m = { version = "0.7.6" }
 embedded-hal = "1.0"
 lsm303agr = "1.1.0"
 futures = { version = "0.3", default-features = false }
+
 defmt = { version = "0.3", optional = true }
 heapless = "0.8.0"
 
 # trouble bluetooth dependencies
 nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc.git", default-features = false, features = [
-    "defmt", 
+    "defmt",
     "peripheral",
-    "nrf52833"
-], rev = "551a95436e999b4290b4a33383aa3d6747b63dd9", optional = true}
-nrf-mpsl = {  git = "https://github.com/alexmoon/nrf-sdc.git", default-features = false, features = [
-    "defmt", 
-    "critical-section-impl"
+    "nrf52833",
+], rev = "551a95436e999b4290b4a33383aa3d6747b63dd9", optional = true }
+nrf-mpsl = { git = "https://github.com/alexmoon/nrf-sdc.git", default-features = false, features = [
+    "defmt",
+    "critical-section-impl",
 ], rev = "551a95436e999b4290b4a33383aa3d6747b63dd9", optional = true }
 static_cell = { version = "2", optional = true }
 
 
 [features]
 default = ["defmt"]
-defmt = ["dep:defmt", "embassy-nrf/defmt", "heapless/defmt-03"]
-trouble = ["embassy-nrf/unstable-pac", "embassy-nrf/rt", "nrf-sdc", "nrf-mpsl", "static_cell"]
+defmt = [
+    "dep:defmt",
+    "embassy-nrf/defmt",
+    "heapless/defmt-03",
+    "embassy-time/defmt",
+    "embassy-time/defmt-timestamp-uptime",
+]
+trouble = [
+    "embassy-nrf/unstable-pac",
+    "embassy-nrf/rt",
+    "nrf-sdc",
+    "nrf-mpsl",
+    "static_cell",
+]
