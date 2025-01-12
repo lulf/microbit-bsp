@@ -20,7 +20,7 @@ microbit-bsp = { path = "../../", features = ["trouble"]}
 futures = { version = "0.3", default-features = false, features = ["async-await"]}
 trouble-host = { git = "https://github.com/embassy-rs/trouble.git", features = [
     "defmt",
-], rev = "6b464147efe6484da1d7ca2ea78247adaa393b13"}
+], rev = "770b1e801c0a06ba51a4eb9b9f5a393726f32f33"}
 
 defmt = "0.3.10"
 defmt-rtt = "0.4.0"
