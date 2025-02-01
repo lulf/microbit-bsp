@@ -1,6 +1,6 @@
 [package]
 name = "microbit-bsp"
-version = "0.5.0"
+version = "0.5.1"
 edition = "2021"
 description = "An embassy-based boards support package (BSP) for BBC Micro:bit v2"
 license = "MIT OR Apache-2.0"
@@ -11,11 +11,12 @@ rust-version = "1.83"
 
 
 [dependencies]
-embassy-nrf = { version = "0.3", default-features = false, features = [
+embassy-nrf = { version = "0.3", features = [
     "gpiote",
     "nfc-pins-as-gpio",
     "nrf52833",
     "time-driver-rtc1",
+    "time",
 ] }
 embassy-time = { version = "0.4", default-features = false }
 embassy-sync = { version = "0.6.2" }

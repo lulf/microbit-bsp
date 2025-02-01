@@ -30,5 +30,5 @@ panic-probe = { version = "0.3", features = ["print-defmt"] }
 debug = 2
 
 [patch.crates-io]
-nrf-softdevice = { git = "https://github.com/embassy-rs/nrf-softdevice.git", rev = "b193eaa1718aeadd3b5eca54f1784aeceba75385" }
-nrf-softdevice-s113 = { git = "https://github.com/embassy-rs/nrf-softdevice.git", rev = "b193eaa1718aeadd3b5eca54f1784aeceba75385" }
+nrf-softdevice = { git = "https://github.com/embassy-rs/nrf-softdevice.git", rev = "7e017eb3dba5bac30748916012b886214291c132" }
+nrf-softdevice-s113 = { git = "https://github.com/embassy-rs/nrf-softdevice.git", rev = "7e017eb3dba5bac30748916012b886214291c132" }
