@@ -18,9 +18,7 @@ embassy-sync = { version = "0.6.2", features = ["defmt"] }
 microbit-bsp = { path = "../../", features = ["trouble"]}
 
 futures = { version = "0.3", default-features = false, features = ["async-await"]}
-trouble-host = { git = "https://github.com/embassy-rs/trouble.git", features = [
-    "defmt",
-], rev = "a1daee269deee25fbb6236cb599a8fb5919c02b7"}
+trouble-host = { version = "0.1.0", features = ["defmt", "gatt", "peripheral"] }
 
 defmt = "0.3.10"
 defmt-rtt = "0.4.0"
@@ -32,3 +30,6 @@ static_cell = "2"
 
 [profile.release]
 debug = 2
+
+[patch.crates-io]
+trouble-host = { version = "0.1.0", git = "https://github.com/embassy-rs/trouble.git", rev = "7700932050221fa68a274fe713f7d1eb3d477ea2" }

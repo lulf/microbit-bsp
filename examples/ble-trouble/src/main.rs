@@ -3,10 +3,9 @@
 
 use {defmt_rtt as _, panic_probe as _};
 
-use defmt::{info, warn};
+use defmt::{info, warn, unwrap};
 use embassy_executor::Spawner;
 use embassy_futures::select::select;
-use embassy_time::Timer;
 use microbit_bsp::{ble::MultiprotocolServiceLayer, Config, Microbit};
 use trouble_host::prelude::*;
 
@@ -32,8 +31,6 @@ struct BatteryService {
     #[descriptor(uuid = descriptors::MEASUREMENT_DESCRIPTION, read, value = "Battery Level")]
     #[characteristic(uuid = characteristic::BATTERY_LEVEL, read, notify)]
     level: u8,
-    #[characteristic(uuid = "408813df-5dd4-1f87-ec11-cdb001100000", write, read, notify)]
-    status: bool,
 }
 
 #[embassy_executor::task]
@@ -79,12 +76,7 @@ where
         loop {
             match advertise("Trouble Example", &mut peripheral).await {
                 Ok(conn) => {
-                    // set up tasks when the connection is established to a central, so they don't run when no one is connected.
-                    let a = gatt_events_task(&server, &conn);
-                    let b = custom_task(&server, &conn, &stack);
-                    // run until any task ends (usually because the connection has been closed),
-                    // then return to advertising state.
-                    select(a, b).await;
+                    connection_task(&server, conn).await;
                 }
                 Err(e) => {
                     let e = defmt::Debug2Format(&e);
@@ -101,50 +93,7 @@ async fn ble_task<C: Controller>(mut runner: Runner<'_, C>) -> Result<(), BleHos
     runner.run().await
 }
 
-/// Stream Events until the connection closes.
-///
-/// This function will handle the GATT events and process them.
-/// This is how we interact with read and write requests.
-async fn gatt_events_task(server: &Server<'_>, conn: &Connection<'_>) -> Result<(), Error> {
-    let level = server.battery_service.level;
-    loop {
-        match conn.next().await {
-            ConnectionEvent::Disconnected { reason } => {
-                info!("[gatt] disconnected: {:?}", reason);
-                break;
-            }
-            ConnectionEvent::Gatt { data } => {
-                // We can choose to handle event directly without an attribute table
-                // let req = data.request();
-                // ..
-                // data.reply(conn, Ok(AttRsp::Error { .. }))
 
-                // But to simplify things, process it in the GATT server that handles
-                // the protocol details
-                match data.process(server).await {
-                    // Server processing emits
-                    Ok(Some(GattEvent::Read(event))) => {
-                        if event.handle() == level.handle {
-                            let value = server.get(&level);
-                            info!("[gatt] Read Event to Level Characteristic: {:?}", value);
-                        }
-                    }
-                    Ok(Some(GattEvent::Write(event))) => {
-                        if event.handle() == level.handle {
-                            info!("[gatt] Write Event to Level Characteristic: {:?}", event.data());
-                        }
-                    }
-                    Ok(_) => {}
-                    Err(e) => {
-                        warn!("[gatt] error processing event: {:?}", e);
-                    }
-                }
-            }
-        }
-    }
-    info!("[gatt] task finished");
-    Ok(())
-}
 
 /// Create an advertiser to use to connect to a BLE Central, and wait for it to connect.
 async fn advertise<'a, C: Controller>(
@@ -175,27 +124,32 @@ async fn advertise<'a, C: Controller>(
     Ok(conn)
 }
 
-/// Example task to use the BLE notifier interface.
-/// This task will notify the connected central of a counter value every 2 seconds.
-/// It will also read the RSSI value every 2 seconds.
-/// and will stop when the connection is closed by the central or an error occurs.
-async fn custom_task<C: Controller>(server: &Server<'_>, conn: &Connection<'_>, stack: &Stack<'_, C>) {
-    let mut tick: u8 = 0;
+/// This function will handle the GATT events and process them.
+/// This is how we interact with read and write requests.
+async fn connection_task(server: &Server<'_>, conn: Connection<'_>) {
     let level = server.battery_service.level;
+    unwrap!(level.set(server, &42));
     loop {
-        tick = tick.wrapping_add(1);
-        info!("[custom_task] notifying connection of tick {}", tick);
-        if level.notify(server, conn, &tick).await.is_err() {
-            info!("[custom_task] error notifying connection");
-            break;
-        };
-        // read RSSI (Received Signal Strength Indicator) of the connection.
-        if let Ok(rssi) = conn.rssi(stack).await {
-            info!("[custom_task] RSSI: {:?}", rssi);
-        } else {
-            info!("[custom_task] error getting RSSI");
-            break;
-        };
-        Timer::after_secs(2).await;
+        match conn.next().await {
+            ConnectionEvent::Disconnected { reason } => {
+                info!("[gatt] disconnected: {:?}", reason);
+                break;
+            }
+            ConnectionEvent::Gatt { data } => {
+                match data.process(server).await {
+                    // Server processing emits
+                    Ok(Some(event)) => {
+                        if let Ok(reply) = event.accept() {
+                            reply.send().await;
+                        }
+                    }
+                    Ok(_) => {}
+                    Err(e) => {
+                        warn!("[gatt] error processing event: {:?}", e);
+                    }
+                }
+            }
+        }
     }
+    info!("[gatt] task finished");
 }
