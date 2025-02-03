@@ -1,6 +1,6 @@
-# microbit-bsp-ble-example
+# microbit-bsp-ble-nrf-softdevice-example
 
-Demonstrating the use of Bluetooth Low Energy (BLE) on the BBC micro:bit.
+Demonstrating the use of Bluetooth Low Energy (BLE) on the BBC micro:bit using the nRF Softdevice.
 
 ## Prerequisites
 
