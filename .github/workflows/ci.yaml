@@ -23,4 +23,4 @@ jobs:
         run: cargo build --release
 
       - name: Examples
-        run: for i in display ble; do pushd examples/$i; cargo build --release; popd; done;
+        run: for i in accelerometer display ble-nrf-softdevice ble-trouble; do pushd examples/$i; cargo build --release; popd; done;
