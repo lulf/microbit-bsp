@@ -3,7 +3,7 @@ use embassy_nrf::gpio::{AnyPin, Input, Level, Output, OutputDrive, Pin, Pull};
 pub use embassy_nrf::interrupt::Priority;
 use embassy_nrf::peripherals::{
     P0_00, P0_01, P0_02, P0_03, P0_04, P0_05, P0_06, P0_08, P0_09, P0_10, P0_12, P0_13, P0_16, P0_17, P0_20, P0_26,
-    P1_00, P1_02, P1_08, PPI_CH0, PPI_CH1, PWM0, PWM1, PWM2, PWM3, RNG, SAADC, TIMER0, TWISPI0, UARTE0,
+    P1_00, P1_02, P1_08, PPI_CH0, PPI_CH1, PWM0, PWM1, PWM2, PWM3, RNG, SAADC, TIMER0, TWISPI0, TWISPI1, UARTE0,
 };
 pub use embassy_nrf::wdt;
 
@@ -69,8 +69,10 @@ pub struct Microbit {
     /// P25 connector pin
     pub p25: P1_08,
 
-    /// SPI/I2C peripheral
+    /// SPI0/I2C0 peripheral
     pub twispi0: TWISPI0,
+    /// SPI1/I2C1 peripheral
+    pub twispi1: TWISPI1,
     /// PWM0 peripheral
     pub pwm0: PWM0,
     /// PWM1 peripheral
@@ -147,6 +149,7 @@ impl Microbit {
             ppi_ch0: p.PPI_CH0,
             ppi_ch1: p.PPI_CH1,
             twispi0: p.TWISPI0,
+            twispi1: p.TWISPI1,
             pwm0: p.PWM0,
             pwm1: p.PWM1,
             pwm2: p.PWM2,
