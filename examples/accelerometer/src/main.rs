@@ -28,7 +28,7 @@ async fn main(_s: Spawner) {
     );
 
     let irqs = InterruptRequests {};
-    let mut acc = Accelerometer::new(board.twispi0, irqs, board.p23, board.p22).unwrap();
+    let mut acc = Accelerometer::new(board.twispi0, irqs, board.i2c_int_sda, board.i2c_int_scl).unwrap();
 
     let status = acc.accel_status().unwrap();
     info!("status: {:?}", Debug2Format(&status));

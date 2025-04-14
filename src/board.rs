@@ -3,7 +3,7 @@ use embassy_nrf::gpio::{AnyPin, Input, Level, Output, OutputDrive, Pin, Pull};
 pub use embassy_nrf::interrupt::Priority;
 use embassy_nrf::peripherals::{
     P0_00, P0_01, P0_02, P0_03, P0_04, P0_05, P0_06, P0_08, P0_09, P0_10, P0_12, P0_13, P0_16, P0_17, P0_20, P0_26,
-    P1_00, P1_02, P1_08, PPI_CH0, PPI_CH1, PWM0, PWM1, PWM2, PWM3, RNG, SAADC, TIMER0, TWISPI0, TWISPI1, UARTE0,
+    P1_00, P1_02, P1_08, PPI_CH0, PPI_CH1, PWM0, PWM1, PWM2, PWM3, RNG, SAADC, TIMER0, TWISPI0, TWISPI1, UARTE0, UARTE1,
 };
 pub use embassy_nrf::wdt;
 
@@ -27,6 +27,8 @@ pub struct Microbit {
     pub btn_b: Button,
     /// UART0 peripheral
     pub uarte0: UARTE0,
+    /// UART1 peripheral
+    pub uarte1: UARTE1,
     /// TIMER0 peripheral
     pub timer0: TIMER0,
     /// Speaker pin
@@ -56,18 +58,20 @@ pub struct Microbit {
     pub p15: P0_13,
     /// P16 connector pin
     pub p16: P1_02,
-    /// P17 connector pin
-    pub p17: P0_06,
     /// P19 connector pin
     pub p19: P0_26,
     /// P20 connector pin
     pub p20: P1_00,
-    /// P22 connector pin
-    pub p22: P0_08,
-    /// P23 connector pin
-    pub p23: P0_16,
-    /// P25 connector pin
-    pub p25: P1_08,
+
+    /// Internal I2C/TWI SCL to accelerometer & debug MCU
+    pub i2c_int_scl: P0_08,
+    /// Internal I2C/TWI SDA to accelerometer & debug MCU
+    pub i2c_int_sda: P0_16,
+
+    /// UART TX to debug MCU
+    pub uart_int_tx: P1_08,
+    /// UART RX to debug MCU
+    pub uart_int_rx: P0_06,
 
     /// SPI0/I2C0 peripheral
     pub twispi0: TWISPI0,
@@ -123,9 +127,10 @@ impl Microbit {
 
         Self {
             display: LedMatrixDriver::new(rows, cols),
-            btn_a: Input::new(p.P0_14.degrade(), Pull::Up),
-            btn_b: Input::new(p.P0_23.degrade(), Pull::Up),
+            btn_a: Input::new(p.P0_14.degrade(), Pull::None),
+            btn_b: Input::new(p.P0_23.degrade(), Pull::None),
             uarte0: p.UARTE0,
+            uarte1: p.UARTE1,
             timer0: p.TIMER0,
             speaker: p.P0_00,
             microphone: p.P0_05,
@@ -140,12 +145,12 @@ impl Microbit {
             p14: p.P0_01,
             p15: p.P0_13,
             p16: p.P1_02,
-            p17: p.P0_06,
             p19: p.P0_26,
             p20: p.P1_00,
-            p22: p.P0_08,
-            p23: p.P0_16,
-            p25: p.P1_08,
+            i2c_int_scl: p.P0_08,
+            i2c_int_sda: p.P0_16,
+            uart_int_tx: p.P1_08,
+            uart_int_rx: p.P0_06,
             ppi_ch0: p.PPI_CH0,
             ppi_ch1: p.PPI_CH1,
             twispi0: p.TWISPI0,
