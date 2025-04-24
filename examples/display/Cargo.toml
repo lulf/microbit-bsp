@@ -19,9 +19,9 @@ embassy-time = { version = "0.4.0", default-features = false, features = ["defmt
 cortex-m-rt = "0.7"
 
 cortex-m = { version = "0.7", features = ["critical-section-single-core"] }
-defmt = "0.3.10"
-defmt-rtt = "0.4"
-panic-probe = { version = "0.3", features = ["print-defmt"] }
+defmt = "1.0.1"
+defmt-rtt = "1"
+panic-probe = { version = "1", features = ["print-defmt"] }
 
 [profile.release]
 debug = 2
