@@ -74,9 +74,9 @@ where
 
     let app_task = async {
         loop {
-            match advertise("Trouble Example", &mut peripheral).await {
+            match advertise("Trouble Example", &mut peripheral, &server).await {
                 Ok(conn) => {
-                    connection_task(&server, conn).await;
+                    connection_task(&server, &conn).await;
                 }
                 Err(e) => {
                     let e = defmt::Debug2Format(&e);
@@ -96,15 +96,16 @@ async fn ble_task<C: Controller>(mut runner: Runner<'_, C>) -> Result<(), BleHos
 
 
 /// Create an advertiser to use to connect to a BLE Central, and wait for it to connect.
-async fn advertise<'a, C: Controller>(
+async fn advertise<'a, 'b, C: Controller>(
     name: &'a str,
     peripheral: &mut Peripheral<'a, C>,
-) -> Result<Connection<'a>, BleHostError<C::Error>> {
+    server: &'b Server<'_>,
+) -> Result<GattConnection<'a, 'b>, BleHostError<C::Error>> {
     let mut advertiser_data = [0; 31];
     AdStructure::encode_slice(
         &[
             AdStructure::Flags(LE_GENERAL_DISCOVERABLE | BR_EDR_NOT_SUPPORTED),
-            AdStructure::ServiceUuids16(&[Uuid::Uuid16([0x0f, 0x18])]),
+            AdStructure::ServiceUuids16(&[[0x0f, 0x18]]),
             AdStructure::CompleteLocalName(name.as_bytes()),
         ],
         &mut advertiser_data[..],
@@ -119,36 +120,32 @@ async fn advertise<'a, C: Controller>(
         )
         .await?;
     info!("[adv] advertising");
-    let conn = advertiser.accept().await?;
+    let conn = advertiser.accept().await?.with_attribute_server(server)?;
     info!("[adv] connection established");
     Ok(conn)
 }
 
 /// This function will handle the GATT events and process them.
 /// This is how we interact with read and write requests.
-async fn connection_task(server: &Server<'_>, conn: Connection<'_>) {
+async fn connection_task(server: &Server<'_>, conn: &GattConnection<'_, '_>) {
     let level = server.battery_service.level;
     unwrap!(level.set(server, &42));
     loop {
         match conn.next().await {
-            ConnectionEvent::Disconnected { reason } => {
+            GattConnectionEvent::Disconnected { reason } => {
                 info!("[gatt] disconnected: {:?}", reason);
                 break;
             }
-            ConnectionEvent::Gatt { data } => {
-                match data.process(server).await {
-                    // Server processing emits
-                    Ok(Some(event)) => {
-                        if let Ok(reply) = event.accept() {
-                            reply.send().await;
-                        }
-                    }
-                    Ok(_) => {}
-                    Err(e) => {
-                        warn!("[gatt] error processing event: {:?}", e);
+            GattConnectionEvent::Gatt { event } => match event {
+                // Server processing emits
+                Ok(event) => {
+                    if let Ok(reply) = event.accept() {
+                        reply.send().await;
                     }
                 }
+                Err(e) => warn!("[gatt] error processing event: {:?}", e),
             }
+            _ => (),
         }
     }
     info!("[gatt] task finished");

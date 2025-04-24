@@ -20,16 +20,13 @@ microbit-bsp = { path = "../../", features = ["trouble"]}
 futures = { version = "0.3", default-features = false, features = ["async-await"]}
 trouble-host = { version = "0.1.0", features = ["defmt", "gatt", "peripheral"] }
 
-defmt = "0.3.10"
-defmt-rtt = "0.4.0"
+defmt = "1.0.1"
+defmt-rtt = "1"
 
 cortex-m = { version = "0.7.6" }
 cortex-m-rt = "0.7.5"
-panic-probe = { version = "0.3", features = ["print-defmt"] }
+panic-probe = { version = "1", features = ["print-defmt"] }
 static_cell = "2"
 
 [profile.release]
 debug = 2
-
-[patch.crates-io]
-trouble-host = { version = "0.1.0", git = "https://github.com/embassy-rs/trouble.git", rev = "7700932050221fa68a274fe713f7d1eb3d477ea2" }
