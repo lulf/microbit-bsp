@@ -30,3 +30,7 @@ static_cell = "2"
 
 [profile.release]
 debug = 2
+
+[patch.crates-io]
+nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc.git", rev="551a95436e999b4290b4a33383aa3d6747b63dd9" }
+nrf-mpsl = { git = "https://github.com/alexmoon/nrf-sdc.git", rev="551a95436e999b4290b4a33383aa3d6747b63dd9" }
