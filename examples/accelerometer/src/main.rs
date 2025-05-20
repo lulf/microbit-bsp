@@ -28,13 +28,15 @@ async fn main(_s: Spawner) {
     );
 
     let irqs = InterruptRequests {};
-    let mut sensor = Sensor::new(board.twispi0, irqs, board.p23, board.p22).unwrap();
+    let mut sensor = Sensor::new(board.twispi0, irqs, board.i2c_int_sda, board.i2c_int_scl)
+        .await
+        .unwrap();
 
-    let status = sensor.accel_status().unwrap();
+    let status = sensor.accel_status().await.unwrap();
     info!("status: {:?}", Debug2Format(&status));
 
     loop {
-        let (x, y, z) = sensor.accel_data().unwrap().xyz_mg();
+        let (x, y, z) = sensor.accel_data().await.unwrap().xyz_mg();
         #[allow(clippy::cast_precision_loss)]
         display_level(&mut display, Duration::from_millis(100), x as f32, y as f32, z as f32).await;
     }

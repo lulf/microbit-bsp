@@ -3,7 +3,7 @@
 //! The sensor is an LSM303AGR, a 3D accelerometer and 3D magnetometer combined in a single package.
 
 use embassy_nrf::{
-    interrupt::typelevel::{Binding, SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0},
+    interrupt::typelevel::{self, Binding},
     peripherals::{P0_08, P0_16, TWISPI0},
     twim::{self, InterruptHandler},
 };
@@ -17,7 +17,7 @@ use lsm303agr::{
 type I2C<'d> = twim::Twim<'d, TWISPI0>;
 
 /// Accelerometer error
-pub type Error = LsmError<twim::Error, ()>;
+pub type Error = LsmError<twim::Error>;
 
 /// Accelerometer and magnetometer chip present on the microbit
 pub struct Sensor<'d> {
@@ -64,7 +64,7 @@ pub struct Sensor<'d> {
 /// ```
 pub fn new_lsm303agr<'d>(
     twispi0: TWISPI0,
-    irq: impl Binding<SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0, InterruptHandler<TWISPI0>> + 'd,
+    irq: impl Binding<typelevel::TWISPI0, InterruptHandler<TWISPI0>> + 'd,
     sda: P0_16,
     scl: P0_08,
 ) -> Lsm303agr<I2cInterface<I2C<'d>>, MagOneShot> {
@@ -79,23 +79,27 @@ impl<'d> Sensor<'d> {
     /// # Errors
     ///
     /// If there is a problem communicating with the sensor, an error is returned.
-    pub fn new(
+    pub async fn new(
         twispi0: TWISPI0,
-        irq: impl Binding<SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0, InterruptHandler<TWISPI0>> + 'd,
+        irq: impl Binding<typelevel::TWISPI0, InterruptHandler<TWISPI0>> + 'd,
         sda: P0_16,
         scl: P0_08,
     ) -> Result<Self, Error> {
         let mut sensor = new_lsm303agr(twispi0, irq, sda, scl);
-        sensor.init()?;
-        sensor.set_accel_mode_and_odr(&mut embassy_time::Delay, AccelMode::Normal, AccelOutputDataRate::Hz10)?;
+        sensor.init().await?;
+        sensor
+            .set_accel_mode_and_odr(&mut embassy_time::Delay, AccelMode::Normal, AccelOutputDataRate::Hz10)
+            .await?;
 
-        sensor.set_mag_mode_and_odr(
-            &mut embassy_time::Delay,
-            MagMode::HighResolution,
-            MagOutputDataRate::Hz10,
-        )?;
-        sensor.mag_enable_low_pass_filter()?;
-        sensor.enable_mag_offset_cancellation()?;
+        sensor
+            .set_mag_mode_and_odr(
+                &mut embassy_time::Delay,
+                MagMode::HighResolution,
+                MagOutputDataRate::Hz10,
+            )
+            .await?;
+        sensor.mag_enable_low_pass_filter().await?;
+        sensor.enable_mag_offset_cancellation().await?;
 
         Ok(Self { sensor })
     }
@@ -105,8 +109,8 @@ impl<'d> Sensor<'d> {
     /// # Errors
     ///
     /// If there is a problem communicating with the sensor, an error is returned.
-    pub fn accel_status(&mut self) -> Result<Status, Error> {
-        self.sensor.accel_status()
+    pub async fn accel_status(&mut self) -> Result<Status, Error> {
+        self.sensor.accel_status().await
     }
 
     /// Return accelerometer data
@@ -116,8 +120,8 @@ impl<'d> Sensor<'d> {
     /// # Errors
     ///
     /// If there is a problem communicating with the sensor, an error is returned.
-    pub fn accel_data(&mut self) -> Result<Acceleration, Error> {
-        self.sensor.acceleration()
+    pub async fn accel_data(&mut self) -> Result<Acceleration, Error> {
+        self.sensor.acceleration().await
     }
 
     /// Run a continuous task outputing accelerometer data at the configured data rate
@@ -145,7 +149,7 @@ impl<'d> Sensor<'d> {
         let mut ticker = Ticker::every(delay);
         loop {
             ticker.next().await;
-            let data = self.accel_data()?;
+            let data = self.accel_data().await?;
             let _ = sender.try_send(data);
         }
     }
@@ -156,8 +160,8 @@ impl<'d> Sensor<'d> {
     ///
     /// Returns an error if the magnetometer is not ready to provide data, or if there is an error
     /// communicating with the sensor.
-    pub fn mag_data(&mut self) -> nb::Result<MagneticField, Error> {
-        self.sensor.magnetic_field()
+    pub async fn mag_data(&mut self) -> Result<MagneticField, Error> {
+        self.sensor.magnetic_field().await
     }
 
     /// Returns the status of the magnetometer.
@@ -165,7 +169,7 @@ impl<'d> Sensor<'d> {
     /// # Errors
     ///
     /// Returns an error if there is an error communicating with the sensor.
-    pub fn mag_status(&mut self) -> Result<Status, Error> {
-        self.sensor.mag_status()
+    pub async fn mag_status(&mut self) -> Result<Status, Error> {
+        self.sensor.mag_status().await
     }
 }

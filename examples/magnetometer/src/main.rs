@@ -25,32 +25,33 @@ async fn main(_s: Spawner) {
     // Bind interrupt to the TWI/SPI peripheral.
     bind_interrupts!(
         struct InterruptRequests {
-            SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0 => InterruptHandler<TWISPI0>;
+            TWISPI0 => InterruptHandler<TWISPI0>;
         }
     );
 
     let irqs = InterruptRequests {};
-    let mut sensor = new_lsm303agr(board.twispi0, irqs, board.p23, board.p22);
-    sensor.init().unwrap();
-    sensor.enable_mag_offset_cancellation().unwrap();
+    let mut sensor = new_lsm303agr(board.twispi0, irqs, board.i2c_int_sda, board.i2c_int_scl);
+    sensor.init().await.unwrap();
+    sensor.enable_mag_offset_cancellation().await.unwrap();
     sensor
         .set_mag_mode_and_odr(
             &mut embassy_time::Delay,
             lsm303agr::MagMode::HighResolution,
             lsm303agr::MagOutputDataRate::Hz50,
         )
+        .await
         .unwrap();
-    let Ok(mut sensor) = sensor.into_mag_continuous() else {
+    let Ok(mut sensor) = sensor.into_mag_continuous().await else {
         panic!("Failed to set sensor to continuous mode");
     };
 
-    let status = sensor.mag_status();
+    let status = sensor.mag_status().await;
     info!("status: {:?}", Debug2Format(&status));
 
     Timer::after_secs(2).await;
 
     loop {
-        let (x, y, z) = sensor.magnetic_field().unwrap().xyz_nt();
+        let (x, y, z) = sensor.magnetic_field().await.unwrap().xyz_nt();
         debug!("x: {}, y: {}, z: {}", x, y, z);
         let (adjecent, opposite) = (y, x);
         #[allow(clippy::cast_precision_loss)]

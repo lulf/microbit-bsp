@@ -9,7 +9,6 @@ categories = ["embedded", "hardware-support", "no-std", "asynchronous"]
 repository = "https://github.com/lulf/microbit-bsp"
 rust-version = "1.83"
 
-
 [dependencies]
 embassy-nrf = { version = "0.3", features = [
     "gpiote",
@@ -22,10 +21,10 @@ embassy-time = { version = "0.4", default-features = false }
 embassy-sync = { version = "0.6.2" }
 cortex-m = { version = "0.7.6" }
 embedded-hal = "1.0"
-lsm303agr = "1.1.0"
+lsm303agr = {version = "1.1.0", features = ["async"] }
 futures = { version = "0.3", default-features = false }
 
-defmt = { version = "0.3", optional = true }
+defmt = { version = "^1.0.1", optional = true }
 heapless = "0.8.0"
 
 # trouble bluetooth dependencies
@@ -39,8 +38,6 @@ nrf-mpsl = { version = "0.1.0", default-features = false, features = [
     "critical-section-impl",
 ], optional = true }
 static_cell = { version = "2", optional = true }
-
-nb = "1.1.0"
 
 [features]
 default = ["defmt"]
