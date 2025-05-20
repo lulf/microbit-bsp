@@ -23,7 +23,7 @@ async fn main(_s: Spawner) {
     // Bind interrupt to the TWI/SPI peripheral.
     bind_interrupts!(
         struct InterruptRequests {
-            SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0 => InterruptHandler<TWISPI0>;
+            TWISPI0 => InterruptHandler<TWISPI0>;
         }
     );
 

@@ -1,6 +1,6 @@
 //! Simple speaker utilities for PWM-based synth
 use embassy_nrf::pwm;
-use embassy_time::{Timer, Delay};
+use embassy_time::{Delay, Timer};
 use embedded_hal::delay::DelayNs;
 
 /// Represents any pitch
@@ -157,7 +157,6 @@ impl<'a, T: pwm::Instance> PwmSpeaker<'a, T> {
         Self { pwm }
     }
 
-
     fn start_play(&mut self, frequency: u32) {
         self.pwm.set_prescaler(pwm::Prescaler::Div4);
         self.pwm.set_period(frequency);
@@ -203,6 +202,21 @@ impl<'a, T: pwm::Instance> PwmSpeaker<'a, T> {
 
         self.start_play(frequency);
         delay.delay_ms(*duration);
+        self.stop_play();
+    }
+
+    /// Start playing a note in a non-blocking way
+    pub fn start_note(&mut self, pitch: Pitch) {
+        let frequency = match pitch {
+            Pitch::Silent => return,
+            Pitch::Named(n) => n.into_frequency(),
+            Pitch::Frequency(f) => f,
+        };
+        self.start_play(frequency);
+    }
+
+    /// Stop playing a note
+    pub fn stop(&mut self) {
         self.stop_play();
     }
 }

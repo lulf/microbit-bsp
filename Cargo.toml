@@ -1,27 +1,64 @@
 [package]
 name = "microbit-bsp"
-version = "0.4.0"
+version = "0.6.0"
 edition = "2021"
 description = "An embassy-based boards support package (BSP) for BBC Micro:bit v2"
 license = "MIT OR Apache-2.0"
 keywords = ["embedded", "async", "nordic", "nrf", "microbit"]
 categories = ["embedded", "hardware-support", "no-std", "asynchronous"]
 repository = "https://github.com/lulf/microbit-bsp"
-
+rust-version = "1.83"
 
 
 [dependencies]
-embassy-nrf = { version = "0.1.0", features = ["nrf52833","gpiote","time-driver-rtc1","nfc-pins-as-gpio","time"]}
-embassy-time = { version = "0.3", default-features = false }
-embassy-sync = { version = "0.5", default-features = false }
-cortex-m = "0.7"
+embassy-nrf = { version = "0.3", features = [
+    "gpiote",
+    "nfc-pins-as-gpio",
+    "nrf52833",
+    "time-driver-rtc1",
+    "time",
+] }
+embassy-time = { version = "0.4", default-features = false }
+embassy-sync = { version = "0.6.2" }
+cortex-m = { version = "0.7.6" }
 embedded-hal = "1.0"
-lsm303agr = "0.3"
+lsm303agr = "1.1.0"
 futures = { version = "0.3", default-features = false }
+
 defmt = { version = "0.3", optional = true }
 heapless = "0.8.0"
+
+# trouble bluetooth dependencies
+nrf-sdc = { version = "0.1.0", default-features = false, features = [
+    "defmt",
+    "peripheral",
+    "nrf52833",
+], optional = true }
+nrf-mpsl = { version = "0.1.0", default-features = false, features = [
+    "defmt",
+    "critical-section-impl",
+], optional = true }
+static_cell = { version = "2", optional = true }
+
 nb = "1.1.0"
 
 [features]
 default = ["defmt"]
-defmt = ["dep:defmt", "embassy-nrf/defmt", "heapless/defmt-03", "nb/defmt-0-3"]
+defmt = [
+    "dep:defmt",
+    "embassy-nrf/defmt",
+    "heapless/defmt-03",
+    "embassy-time/defmt",
+    "embassy-time/defmt-timestamp-uptime",
+]
+trouble = [
+    "embassy-nrf/unstable-pac",
+    "embassy-nrf/rt",
+    "nrf-sdc",
+    "nrf-mpsl",
+    "static_cell",
+]
+
+[patch.crates-io]
+nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc.git", rev="551a95436e999b4290b4a33383aa3d6747b63dd9" }
+nrf-mpsl = { git = "https://github.com/alexmoon/nrf-sdc.git", rev="551a95436e999b4290b4a33383aa3d6747b63dd9" }
