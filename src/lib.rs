@@ -5,9 +5,9 @@
 mod board;
 pub use board::*;
 
-pub mod accelerometer;
 pub mod display;
 pub mod mic;
+pub mod motion;
 pub mod speaker;
 
 // Re-exports

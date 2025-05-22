@@ -1,0 +1,14 @@
+{
+  "rust-analyzer.cargo.allTargets": false,
+  "[rust]": {
+    "editor.formatOnSave": true,
+  },
+  "rust-analyzer.linkedProjects": [
+    "examples/accelerometer/Cargo.toml",
+    "examples/ble-nrf-softdevice/Cargo.toml",
+    "examples/ble-trouble/Cargo.toml",
+    "examples/display/Cargo.toml",
+    "examples/magnetometer/Cargo.toml",
+    "examples/speaker/Cargo.toml"
+  ]
+}

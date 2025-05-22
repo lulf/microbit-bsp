@@ -1,19 +1,13 @@
 [package]
-name = "microbit-async-accelerometer-example"
+name = "microbit-async-magnetometer-example"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-microbit-bsp = { path = "../../" }
+microbit-bsp= { path = "../../" }
 
 embassy-futures = { version = "0.1", default-features = false }
-embassy-executor = { version = "0.7", default-features = false, features = [
-    "arch-cortex-m", 
-    "defmt", 
-    "executor-interrupt", 
-    "executor-thread", 
-    "task-arena-size-32768"
-    ] }
+embassy-executor = { version = "0.7", default-features = false, features = ["defmt", "arch-cortex-m", "executor-thread", "executor-interrupt", "task-arena-size-32768"] }
 embassy-time = { version = "0.4", default-features = false, features = ["defmt-timestamp-uptime", "defmt"] }
 
 cortex-m-rt = "0.7"
@@ -22,6 +16,7 @@ cortex-m = { version = "0.7", features = ["critical-section-single-core"] }
 defmt = "^1"
 defmt-rtt = "^1"
 panic-probe = { version = "^1", features = ["print-defmt"] }
+libm = "0.2.8"
 
 [profile.release]
 debug = 2
