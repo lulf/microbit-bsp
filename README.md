@@ -9,8 +9,9 @@ microbit-bsp is a board support package (BSP) library for the BBC micro:bit v2 a
 ## Features
 
 * LED display driver with fonts
-* Uses embassy-nrf HAL for peripherals
+* Uses `embassy-nrf` HAL for peripherals
 * Rust Async/Await
+* Bluetooth LE support via `trouble-host` or `nrf-softdevice`
 
 ## Example application
 
@@ -67,5 +68,5 @@ cargo run --release
 
 ## Cargo Features
 
-The feature `defmt` is enabled by default, and allows
-some crates to print things.
+* `defmt` - enabled by default, and allows some crates to print things
+* `trouble` - enables BLE support via the `trouble-host` crate
