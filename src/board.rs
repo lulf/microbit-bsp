@@ -1,11 +1,13 @@
 pub use embassy_nrf::config::Config;
-use embassy_nrf::gpio::{AnyPin, Input, Level, Output, OutputDrive, Pin, Pull};
+use embassy_nrf::gpio::{Input, Level, Output, OutputDrive, Pin, Pull};
 pub use embassy_nrf::interrupt::Priority;
 use embassy_nrf::peripherals::{
     P0_00, P0_01, P0_02, P0_03, P0_04, P0_05, P0_06, P0_08, P0_09, P0_10, P0_12, P0_13, P0_16, P0_17, P0_20, P0_26,
-    P1_00, P1_02, P1_08, PPI_CH0, PPI_CH1, PWM0, PWM1, PWM2, PWM3, RNG, SAADC, TIMER0, TWISPI0, TWISPI1, UARTE0, UARTE1,
+    P1_00, P1_02, P1_08, PPI_CH0, PPI_CH1, PWM0, PWM1, PWM2, PWM3, RNG, SAADC, TIMER0, TWISPI0, TWISPI1, UARTE0,
+    UARTE1,
 };
 pub use embassy_nrf::wdt;
+use embassy_nrf::Peri;
 
 #[cfg(feature = "trouble")]
 use crate::ble;
@@ -26,73 +28,73 @@ pub struct Microbit {
     /// Button 'B'
     pub btn_b: Button,
     /// UART0 peripheral
-    pub uarte0: UARTE0,
+    pub uarte0: Peri<'static, UARTE0>,
     /// UART1 peripheral
-    pub uarte1: UARTE1,
+    pub uarte1: Peri<'static, UARTE1>,
     /// TIMER0 peripheral
-    pub timer0: TIMER0,
+    pub timer0: Peri<'static, TIMER0>,
     /// Speaker pin
-    pub speaker: P0_00,
+    pub speaker: Peri<'static, P0_00>,
     /// Microphone pin
-    pub microphone: P0_05,
+    pub microphone: Peri<'static, P0_05>,
     /// Microphone pin enable
-    pub micen: P0_20,
+    pub micen: Peri<'static, P0_20>,
 
     /// P0 connector pin
-    pub p0: P0_02,
+    pub p0: Peri<'static, P0_02>,
     /// P1 connector pin
-    pub p1: P0_03,
+    pub p1: Peri<'static, P0_03>,
     /// P2 connector pin
-    pub p2: P0_04,
+    pub p2: Peri<'static, P0_04>,
     /// P8 connector pin
-    pub p8: P0_10,
+    pub p8: Peri<'static, P0_10>,
     /// P9 connector pin
-    pub p9: P0_09,
+    pub p9: Peri<'static, P0_09>,
     /// P12 connector pin
-    pub p12: P0_12,
+    pub p12: Peri<'static, P0_12>,
     /// P13 connector pin
-    pub p13: P0_17,
+    pub p13: Peri<'static, P0_17>,
     /// P14 connector pin
-    pub p14: P0_01,
+    pub p14: Peri<'static, P0_01>,
     /// P15 connector pin
-    pub p15: P0_13,
+    pub p15: Peri<'static, P0_13>,
     /// P16 connector pin
-    pub p16: P1_02,
+    pub p16: Peri<'static, P1_02>,
     /// P19 connector pin
-    pub p19: P0_26,
+    pub p19: Peri<'static, P0_26>,
     /// P20 connector pin
-    pub p20: P1_00,
+    pub p20: Peri<'static, P1_00>,
 
     /// Internal I2C/TWI SCL to accelerometer & debug MCU
-    pub i2c_int_scl: P0_08,
+    pub i2c_int_scl: Peri<'static, P0_08>,
     /// Internal I2C/TWI SDA to accelerometer & debug MCU
-    pub i2c_int_sda: P0_16,
+    pub i2c_int_sda: Peri<'static, P0_16>,
 
     /// UART TX to debug MCU
-    pub uart_int_tx: P1_08,
+    pub uart_int_tx: Peri<'static, P1_08>,
     /// UART RX to debug MCU
-    pub uart_int_rx: P0_06,
+    pub uart_int_rx: Peri<'static, P0_06>,
 
     /// SPI0/I2C0 peripheral
-    pub twispi0: TWISPI0,
+    pub twispi0: Peri<'static, TWISPI0>,
     /// SPI1/I2C1 peripheral
-    pub twispi1: TWISPI1,
+    pub twispi1: Peri<'static, TWISPI1>,
     /// PWM0 peripheral
-    pub pwm0: PWM0,
+    pub pwm0: Peri<'static, PWM0>,
     /// PWM1 peripheral
-    pub pwm1: PWM1,
+    pub pwm1: Peri<'static, PWM1>,
     /// PWM2 peripheral
-    pub pwm2: PWM2,
+    pub pwm2: Peri<'static, PWM2>,
     /// PWM3 peripheral
-    pub pwm3: PWM3,
+    pub pwm3: Peri<'static, PWM3>,
     /// PPI channel 0
-    pub ppi_ch0: PPI_CH0,
+    pub ppi_ch0: Peri<'static, PPI_CH0>,
     /// PPI channel 1
-    pub ppi_ch1: PPI_CH1,
+    pub ppi_ch1: Peri<'static, PPI_CH1>,
     /// Random number generator
-    pub rng: RNG,
+    pub rng: Peri<'static, RNG>,
     /// Analog digital converter
-    pub saadc: SAADC,
+    pub saadc: Peri<'static, SAADC>,
     #[cfg(feature = "trouble")]
     /// Bluetooth Low Energy peripheral
     pub ble: ble::BleControllerBuilder<'static>,
@@ -110,25 +112,25 @@ impl Microbit {
         let p = embassy_nrf::init(config);
         // LED Matrix
         let rows = [
-            output_pin(p.P0_21.degrade()),
-            output_pin(p.P0_22.degrade()),
-            output_pin(p.P0_15.degrade()),
-            output_pin(p.P0_24.degrade()),
-            output_pin(p.P0_19.degrade()),
+            output_pin(p.P0_21),
+            output_pin(p.P0_22),
+            output_pin(p.P0_15),
+            output_pin(p.P0_24),
+            output_pin(p.P0_19),
         ];
 
         let cols = [
-            output_pin(p.P0_28.degrade()),
-            output_pin(p.P0_11.degrade()),
-            output_pin(p.P0_31.degrade()),
-            output_pin(p.P1_05.degrade()),
-            output_pin(p.P0_30.degrade()),
+            output_pin(p.P0_28),
+            output_pin(p.P0_11),
+            output_pin(p.P0_31),
+            output_pin(p.P1_05),
+            output_pin(p.P0_30),
         ];
 
         Self {
             display: LedMatrixDriver::new(rows, cols),
-            btn_a: Input::new(p.P0_14.degrade(), Pull::None),
-            btn_b: Input::new(p.P0_23.degrade(), Pull::None),
+            btn_a: Input::new(p.P0_14, Pull::None),
+            btn_b: Input::new(p.P0_23, Pull::None),
             uarte0: p.UARTE0,
             uarte1: p.UARTE1,
             timer0: p.TIMER0,
@@ -170,6 +172,6 @@ impl Microbit {
     }
 }
 
-fn output_pin(pin: AnyPin) -> Output<'static> {
+fn output_pin(pin: Peri<'static, impl Pin>) -> Output<'static> {
     Output::new(pin, Level::Low, OutputDrive::Standard)
 }

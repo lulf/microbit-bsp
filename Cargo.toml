@@ -10,7 +10,7 @@ repository = "https://github.com/lulf/microbit-bsp"
 rust-version = "1.83"
 
 [dependencies]
-embassy-nrf = { version = "0.3", features = [
+embassy-nrf = { version = "0.3.1", features = [
     "gpiote",
     "nfc-pins-as-gpio",
     "nrf52833",
@@ -18,10 +18,10 @@ embassy-nrf = { version = "0.3", features = [
     "time",
 ] }
 embassy-time = { version = "0.4", default-features = false }
-embassy-sync = { version = "0.6.2" }
+embassy-sync = { version = "0.7.0" }
 cortex-m = { version = "0.7.6" }
 embedded-hal = "1.0"
-lsm303agr = {version = "1.1.0", features = ["async"] }
+lsm303agr = { version = "1.1.0", features = ["async"] }
 futures = { version = "0.3", default-features = false }
 
 defmt = { version = "^1.0.1", optional = true }
@@ -37,7 +37,7 @@ nrf-mpsl = { version = "0.1.0", default-features = false, features = [
     "defmt",
     "critical-section-impl",
 ], optional = true }
-static_cell = { version = "2", optional = true }
+static_cell = "2"
 
 [features]
 default = ["defmt"]
@@ -53,9 +53,13 @@ trouble = [
     "embassy-nrf/rt",
     "nrf-sdc",
     "nrf-mpsl",
-    "static_cell",
 ]
 
 [patch.crates-io]
-nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc.git", rev="551a95436e999b4290b4a33383aa3d6747b63dd9" }
-nrf-mpsl = { git = "https://github.com/alexmoon/nrf-sdc.git", rev="551a95436e999b4290b4a33383aa3d6747b63dd9" }
+nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc.git", rev="7be9b853e15ca0404d65c623d1ec5795fd96c204" }
+nrf-mpsl = { git = "https://github.com/alexmoon/nrf-sdc.git", rev="7be9b853e15ca0404d65c623d1ec5795fd96c204" }
+
+embassy-nrf = { git = "https://github.com/embassy-rs/embassy.git", rev = "f35aa4005a63e8d478b2b95aaa2bfb316b72dece" }
+embassy-sync = { git = "https://github.com/embassy-rs/embassy.git", rev = "f35aa4005a63e8d478b2b95aaa2bfb316b72dece" }
+embassy-time = { git = "https://github.com/embassy-rs/embassy.git", rev = "f35aa4005a63e8d478b2b95aaa2bfb316b72dece" }
+embassy-time-driver = { git = "https://github.com/embassy-rs/embassy.git", rev = "f35aa4005a63e8d478b2b95aaa2bfb316b72dece" }

@@ -6,6 +6,7 @@ use embassy_nrf::{
     interrupt::typelevel::{self, Binding},
     peripherals::{P0_08, P0_16, TWISPI0},
     twim::{self, InterruptHandler},
+    Peri,
 };
 use embassy_sync::channel::DynamicSender;
 use embassy_time::{Duration, Ticker};
@@ -13,6 +14,7 @@ use lsm303agr::{
     interface::I2cInterface, mode::MagOneShot, AccelMode, AccelOutputDataRate, Acceleration, Error as LsmError,
     Lsm303agr, MagMode, MagOutputDataRate, MagneticField, Status,
 };
+use static_cell::ConstStaticCell;
 
 type I2C<'d> = twim::Twim<'d, TWISPI0>;
 
@@ -63,13 +65,14 @@ pub struct Sensor<'d> {
 /// lsm.enable_mag_offset_cancellation().unwrap();
 /// ```
 pub fn new_lsm303agr<'d>(
-    twispi0: TWISPI0,
+    twispi0: Peri<'static, TWISPI0>,
     irq: impl Binding<typelevel::TWISPI0, InterruptHandler<TWISPI0>> + 'd,
-    sda: P0_16,
-    scl: P0_08,
+    sda: Peri<'static, P0_16>,
+    scl: Peri<'static, P0_08>,
 ) -> Lsm303agr<I2cInterface<I2C<'d>>, MagOneShot> {
     let config = twim::Config::default();
-    let twi = twim::Twim::new(twispi0, irq, sda, scl, config);
+    static RAM_BUFFER: ConstStaticCell<[u8; 16]> = ConstStaticCell::new([0; 16]);
+    let twi = twim::Twim::new(twispi0, irq, sda, scl, config, RAM_BUFFER.take());
     Lsm303agr::new_with_i2c(twi)
 }
 
@@ -80,10 +83,10 @@ impl<'d> Sensor<'d> {
     ///
     /// If there is a problem communicating with the sensor, an error is returned.
     pub async fn new(
-        twispi0: TWISPI0,
+        twispi0: Peri<'static, TWISPI0>,
         irq: impl Binding<typelevel::TWISPI0, InterruptHandler<TWISPI0>> + 'd,
-        sda: P0_16,
-        scl: P0_08,
+        sda: Peri<'static, P0_16>,
+        scl: Peri<'static, P0_08>,
     ) -> Result<Self, Error> {
         let mut sensor = new_lsm303agr(twispi0, irq, sda, scl);
         sensor.init().await?;
