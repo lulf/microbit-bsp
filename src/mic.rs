@@ -4,6 +4,7 @@ use embassy_nrf::interrupt;
 use embassy_nrf::interrupt::typelevel::Binding;
 use embassy_nrf::peripherals::{P0_05, P0_20, SAADC};
 use embassy_nrf::saadc::*;
+use embassy_nrf::Peri;
 use embassy_time::{Duration, Timer};
 
 /// Microphone interface
@@ -15,10 +16,10 @@ pub struct Microphone<'a> {
 impl<'a> Microphone<'a> {
     /// Create a new microphone instance
     pub fn new(
-        saadc: SAADC,
+        saadc: Peri<'static, SAADC>,
         irq: impl Binding<interrupt::typelevel::SAADC, InterruptHandler> + 'a,
-        mic: P0_05,
-        micen: P0_20,
+        mic: Peri<'static, P0_05>,
+        micen: Peri<'static, P0_20>,
     ) -> Self {
         let config = Config::default();
         let mut channel_config = ChannelConfig::single_ended(mic);

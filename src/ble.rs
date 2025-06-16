@@ -2,15 +2,15 @@
 //!
 //! Used with `trouble-host` crate.
 
+use embassy_nrf::mode::Async;
 use embassy_nrf::peripherals;
-use embassy_nrf::{bind_interrupts, rng, Peripheral};
+use embassy_nrf::{bind_interrupts, rng, Peri};
 use nrf_sdc::{self as sdc, mpsl};
 pub use nrf_sdc::{mpsl::MultiprotocolServiceLayer, Error as SoftdeviceError, SoftdeviceController};
 use static_cell::StaticCell;
 
 /// Default memory allocation for softdevice controller in bytes.
-/// - maximum associated with [task-arena-size](https://docs.embassy.dev/embassy-executor/git/cortex-m/index.html)
-const SDC_MEMORY_SIZE: usize = 1448; // bytes
+const SDC_MEMORY_SIZE: usize = 1432; // bytes
 
 /// Softdevice Bluetooth Controller Builder.
 pub struct BleControllerBuilder<'d> {
@@ -19,11 +19,11 @@ pub struct BleControllerBuilder<'d> {
     /// Softdevice Controller memory
     sdc_mem: sdc::Mem<SDC_MEMORY_SIZE>,
     // Required peripherals for the Multiprotocol Service Layer (MPSL)
-    rtc0: peripherals::RTC0,
-    temp: peripherals::TEMP,
-    ppi_ch19: peripherals::PPI_CH19,
-    ppi_ch30: peripherals::PPI_CH30,
-    ppi_ch31: peripherals::PPI_CH31,
+    rtc0: Peri<'static, peripherals::RTC0>,
+    temp: Peri<'static, peripherals::TEMP>,
+    ppi_ch19: Peri<'static, peripherals::PPI_CH19>,
+    ppi_ch30: Peri<'static, peripherals::PPI_CH30>,
+    ppi_ch31: Peri<'static, peripherals::PPI_CH31>,
 }
 
 bind_interrupts!(struct Irqs {
@@ -49,23 +49,23 @@ where
     };
     /// Create a new instance of the Softdevice Controller BLE builder
     pub(crate) fn new(
-        rtc0: peripherals::RTC0,
-        temp: peripherals::TEMP,
-        ppi_ch17: peripherals::PPI_CH17,
-        ppi_ch18: peripherals::PPI_CH18,
-        ppi_ch19: peripherals::PPI_CH19,
-        ppi_ch20: peripherals::PPI_CH20,
-        ppi_ch21: peripherals::PPI_CH21,
-        ppi_ch22: peripherals::PPI_CH22,
-        ppi_ch23: peripherals::PPI_CH23,
-        ppi_ch24: peripherals::PPI_CH24,
-        ppi_ch25: peripherals::PPI_CH25,
-        ppi_ch26: peripherals::PPI_CH26,
-        ppi_ch27: peripherals::PPI_CH27,
-        ppi_ch28: peripherals::PPI_CH28,
-        ppi_ch29: peripherals::PPI_CH29,
-        ppi_ch30: peripherals::PPI_CH30,
-        ppi_ch31: peripherals::PPI_CH31,
+        rtc0: Peri<'static, peripherals::RTC0>,
+        temp: Peri<'static, peripherals::TEMP>,
+        ppi_ch17: Peri<'static, peripherals::PPI_CH17>,
+        ppi_ch18: Peri<'static, peripherals::PPI_CH18>,
+        ppi_ch19: Peri<'static, peripherals::PPI_CH19>,
+        ppi_ch20: Peri<'static, peripherals::PPI_CH20>,
+        ppi_ch21: Peri<'static, peripherals::PPI_CH21>,
+        ppi_ch22: Peri<'static, peripherals::PPI_CH22>,
+        ppi_ch23: Peri<'static, peripherals::PPI_CH23>,
+        ppi_ch24: Peri<'static, peripherals::PPI_CH24>,
+        ppi_ch25: Peri<'static, peripherals::PPI_CH25>,
+        ppi_ch26: Peri<'static, peripherals::PPI_CH26>,
+        ppi_ch27: Peri<'static, peripherals::PPI_CH27>,
+        ppi_ch28: Peri<'static, peripherals::PPI_CH28>,
+        ppi_ch29: Peri<'static, peripherals::PPI_CH29>,
+        ppi_ch30: Peri<'static, peripherals::PPI_CH30>,
+        ppi_ch31: Peri<'static, peripherals::PPI_CH31>,
     ) -> Self {
         // Softdevice Controller peripherals
         let sdc_peripherals = sdc::Peripherals::new(
@@ -121,8 +121,8 @@ where
     /// ```
     pub fn init(
         self,
-        timer0: impl Peripheral<P = peripherals::TIMER0> + 'd,
-        rng: impl Peripheral<P = peripherals::RNG> + 'd,
+        timer0: Peri<'static, peripherals::TIMER0>,
+        rng: Peri<'static, peripherals::RNG>,
     ) -> Result<(SoftdeviceController<'d>, &'static MultiprotocolServiceLayer<'d>), nrf_sdc::Error> {
         let mpsl = {
             let p = mpsl::Peripherals::new(
@@ -136,7 +136,7 @@ where
             mpsl::MultiprotocolServiceLayer::new(p, Irqs, Self::LF_CLOCK_CONFIG)
         }?;
         let sdc_rng = {
-            static SDC_RNG: StaticCell<rng::Rng<'static, peripherals::RNG>> = StaticCell::new();
+            static SDC_RNG: StaticCell<rng::Rng<'static, peripherals::RNG, Async>> = StaticCell::new();
             SDC_RNG.init(rng::Rng::new(rng, Irqs))
         };
         let mem = {
@@ -155,7 +155,7 @@ where
 /// Build the Softdevice Controller layer to pass to trouble-host
 fn build_sdc<'d, const N: usize>(
     p: nrf_sdc::Peripherals<'d>,
-    rng: &'d mut rng::Rng<peripherals::RNG>,
+    rng: &'d mut rng::Rng<peripherals::RNG, Async>,
     mpsl: &'d MultiprotocolServiceLayer,
     mem: &'d mut sdc::Mem<N>,
 ) -> Result<nrf_sdc::SoftdeviceController<'d>, nrf_sdc::Error> {

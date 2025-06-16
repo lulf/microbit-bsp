@@ -9,9 +9,6 @@ use embassy_futures::select::select;
 use microbit_bsp::{ble::MultiprotocolServiceLayer, Config, Microbit};
 use trouble_host::prelude::*;
 
-/// Size of L2CAP packets (ATT MTU is this - 4)
-const L2CAP_MTU: usize = 251;
-
 /// Max number of connections
 const CONNECTIONS_MAX: usize = 1;
 
@@ -59,7 +56,7 @@ where
     let address = Address::random([0x42, 0x6A, 0xE3, 0x1E, 0x83, 0xE7]);
     info!("Our address = {:?}", address);
 
-    let mut resources: HostResources<CONNECTIONS_MAX, L2CAP_CHANNELS_MAX, L2CAP_MTU> = HostResources::new();
+    let mut resources: HostResources<DefaultPacketPool, CONNECTIONS_MAX, L2CAP_CHANNELS_MAX> = HostResources::new();
     let stack = trouble_host::new(controller, &mut resources).set_random_address(address);
     let Host {
         mut peripheral, runner, ..
@@ -89,7 +86,7 @@ where
 }
 
 /// This is a background task that is required to run forever alongside any other BLE tasks.
-async fn ble_task<C: Controller>(mut runner: Runner<'_, C>) -> Result<(), BleHostError<C::Error>> {
+async fn ble_task<C: Controller, P: PacketPool>(mut runner: Runner<'_, C, P>) -> Result<(), BleHostError<C::Error>> {
     runner.run().await
 }
 
@@ -98,9 +95,9 @@ async fn ble_task<C: Controller>(mut runner: Runner<'_, C>) -> Result<(), BleHos
 /// Create an advertiser to use to connect to a BLE Central, and wait for it to connect.
 async fn advertise<'a, 'b, C: Controller>(
     name: &'a str,
-    peripheral: &mut Peripheral<'a, C>,
+    peripheral: &mut Peripheral<'a, C, DefaultPacketPool>,
     server: &'b Server<'_>,
-) -> Result<GattConnection<'a, 'b>, BleHostError<C::Error>> {
+) -> Result<GattConnection<'a, 'b, DefaultPacketPool>, BleHostError<C::Error>> {
     let mut advertiser_data = [0; 31];
     AdStructure::encode_slice(
         &[
@@ -127,7 +124,7 @@ async fn advertise<'a, 'b, C: Controller>(
 
 /// This function will handle the GATT events and process them.
 /// This is how we interact with read and write requests.
-async fn connection_task(server: &Server<'_>, conn: &GattConnection<'_, '_>) {
+async fn connection_task<P: PacketPool>(server: &Server<'_>, conn: &GattConnection<'_, '_, P>) {
     let level = server.battery_service.level;
     unwrap!(level.set(server, &42));
     loop {
@@ -136,16 +133,13 @@ async fn connection_task(server: &Server<'_>, conn: &GattConnection<'_, '_>) {
                 info!("[gatt] disconnected: {:?}", reason);
                 break;
             }
-            GattConnectionEvent::Gatt { event } => match event {
-                // Server processing emits
-                Ok(event) => {
-                    if let Ok(reply) = event.accept() {
-                        reply.send().await;
-                    }
+            GattConnectionEvent::Gatt { event } => {
+                match event.accept() {
+                    Ok(reply) => reply.send().await,
+                    Err(e) => warn!("[gatt] error sending response: {:?}", e)
                 }
-                Err(e) => warn!("[gatt] error processing event: {:?}", e),
             }
-            _ => (),
+            _ => {}
         }
     }
     info!("[gatt] task finished");
