@@ -10,7 +10,7 @@ repository = "https://github.com/lulf/microbit-bsp"
 rust-version = "1.83"
 
 [dependencies]
-embassy-nrf = { version = "0.3.1", features = [
+embassy-nrf = { version = "0.4.1", features = [
     "gpiote",
     "nfc-pins-as-gpio",
     "nrf52833",
@@ -28,12 +28,12 @@ defmt = { version = "^1.0.1", optional = true }
 heapless = "0.8.0"
 
 # trouble bluetooth dependencies
-nrf-sdc = { version = "0.1.0", default-features = false, features = [
+nrf-sdc = { version = "0.1", default-features = false, features = [
     "defmt",
     "peripheral",
     "nrf52833",
 ], optional = true }
-nrf-mpsl = { version = "0.1.0", default-features = false, features = [
+nrf-mpsl = { version = "0.1", default-features = false, features = [
     "defmt",
     "critical-section-impl",
 ], optional = true }
@@ -54,12 +54,3 @@ trouble = [
     "nrf-sdc",
     "nrf-mpsl",
 ]
-
-[patch.crates-io]
-nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc.git", rev="7be9b853e15ca0404d65c623d1ec5795fd96c204" }
-nrf-mpsl = { git = "https://github.com/alexmoon/nrf-sdc.git", rev="7be9b853e15ca0404d65c623d1ec5795fd96c204" }
-
-embassy-nrf = { git = "https://github.com/embassy-rs/embassy.git", rev = "f35aa4005a63e8d478b2b95aaa2bfb316b72dece" }
-embassy-sync = { git = "https://github.com/embassy-rs/embassy.git", rev = "f35aa4005a63e8d478b2b95aaa2bfb316b72dece" }
-embassy-time = { git = "https://github.com/embassy-rs/embassy.git", rev = "f35aa4005a63e8d478b2b95aaa2bfb316b72dece" }
-embassy-time-driver = { git = "https://github.com/embassy-rs/embassy.git", rev = "f35aa4005a63e8d478b2b95aaa2bfb316b72dece" }
