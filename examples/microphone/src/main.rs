@@ -24,6 +24,8 @@ async fn main(_s: Spawner) {
     let mut display = board.display;
     display.set_brightness(Brightness::MAX);
 
+    const DISPLAY_DURATION_MS: u64 = 50;
+
     // Bind interrupt to the SAADC peripheral for microphone
     bind_interrupts!(
         struct InterruptRequests {
