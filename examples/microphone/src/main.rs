@@ -67,13 +67,13 @@ async fn display_sound_indicator(display: &mut LedMatrix, length: Duration, soun
 
     if num_rows > 0 {
         // Light up rows from bottom to top, starting with center column
-        for row in (5 - num_rows)..MAX_ROWS {
+        for row in (MAX_ROWS - num_rows)..MAX_ROWS {
             frame.set(CENTER_COLUMN, row);
         }
 
         // For medium levels, expand to adjacent columns
         if num_rows >= 3 {
-            for row in (5 - num_rows)..MAX_ROWS {
+            for row in (MAX_ROWS - num_rows)..MAX_ROWS {
                 frame.set(1, row);
                 frame.set(3, row);
             }
