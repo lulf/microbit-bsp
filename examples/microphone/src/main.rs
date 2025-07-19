@@ -52,6 +52,9 @@ async fn main(_s: Spawner) {
 async fn display_sound_indicator(display: &mut LedMatrix, length: Duration, sound_level: u8) {
     let mut frame = Frame::<5, 5>::empty();
 
+    const CENTER_COLUMN: usize = 2;
+    const MAX_ROWS: usize = 5;
+
     // Convert sound level (0-255) to number of rows to light up (0-5)
     let num_rows = match sound_level {
         0 => 0,
@@ -59,18 +62,18 @@ async fn display_sound_indicator(display: &mut LedMatrix, length: Duration, soun
         52..=102 => 2,
         103..=153 => 3,
         154..=204 => 4,
-        205..=255 => 5,
+        205..=255 => MAX_ROWS,
     };
 
     if num_rows > 0 {
         // Light up rows from bottom to top, starting with center column
-        for row in (5 - num_rows)..5 {
-            frame.set(2, row);
+        for row in (5 - num_rows)..MAX_ROWS {
+            frame.set(CENTER_COLUMN, row);
         }
 
         // For medium levels, expand to adjacent columns
         if num_rows >= 3 {
-            for row in (5 - num_rows)..5 {
+            for row in (5 - num_rows)..MAX_ROWS {
                 frame.set(1, row);
                 frame.set(3, row);
             }
@@ -78,7 +81,7 @@ async fn display_sound_indicator(display: &mut LedMatrix, length: Duration, soun
 
         // For high levels, expand to all columns
         if num_rows >= 4 {
-            for row in (5 - num_rows)..5 {
+            for row in (5 - num_rows)..MAX_ROWS {
                 frame.set(0, row);
                 frame.set(4, row);
             }
