@@ -81,7 +81,7 @@ async fn display_sound_indicator(display: &mut LedMatrix, length: Duration, soun
 
         // For high levels, expand to all columns
         if num_rows >= 4 {
-            for row in (5 - num_rows)..MAX_ROWS {
+            for row in (MAX_ROWS - num_rows)..MAX_ROWS {
                 frame.set(0, row);
                 frame.set(4, row);
             }
