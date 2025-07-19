@@ -42,7 +42,7 @@ async fn main(_s: Spawner) {
         if sound_level != last_sound_level {
             last_sound_level = sound_level;
             info!("Sound level: {}", sound_level);
-            display_sound_indicator(&mut display, Duration::from_millis(50), sound_level).await;
+            display_sound_indicator(&mut display, Duration::from_millis(DISPLAY_DURATION_MS), sound_level).await;
         }
     }
 }
