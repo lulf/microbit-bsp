@@ -8,10 +8,23 @@ microbit-bsp is a board support package (BSP) library for the BBC micro:bit v2 a
 
 ## Features
 
-* LED display driver with fonts
-* Uses `embassy-nrf` HAL for peripherals
+**Based on:**
+
+* `embassy-nrf` HAL for peripherals
 * Rust Async/Await
+
+**Hardware Support:**
+
+Should support the complete hardware features of the BBC micro:bit v2:
+
+* Front Buttons A and B
+* 5x5 LED matrix display with fonts and brightness control
+* Microphone
+* Speaker
+* Accelerometer
+* Magnetometer
 * Bluetooth LE support via `trouble-host` or `nrf-softdevice`
+* GPIO pins for external connections
 
 ## Example application
 
