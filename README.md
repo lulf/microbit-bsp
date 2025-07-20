@@ -6,7 +6,7 @@
 
 microbit-bsp is a board support package (BSP) library for the BBC micro:bit v2 and newer.
 
-## Features
+## Features:
 
 **Based on:**
 
