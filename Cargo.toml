@@ -28,12 +28,12 @@ defmt = { version = "^1.0.1", optional = true }
 heapless = "0.9.1"
 
 # trouble bluetooth dependencies
-nrf-sdc = { version = "0.3", default-features = false, features = [
+nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc.git", rev = "d4d244d5ce21f59fa2263333cb1d8f2a5d997145", default-features = false, features = [
     "defmt",
     "peripheral",
     "nrf52833",
 ], optional = true }
-nrf-mpsl = { version = "0.3", default-features = false, features = [
+nrf-mpsl = { git = "https://github.com/alexmoon/nrf-sdc.git", rev = "d4d244d5ce21f59fa2263333cb1d8f2a5d997145", default-features = false, features = [
     "defmt",
     "critical-section-impl",
 ], optional = true }
