@@ -13,6 +13,7 @@ pub mod speaker;
 // Re-exports
 
 pub use embassy_nrf;
+pub use embassy_time;
 pub use lsm303agr;
 
 #[cfg(feature = "trouble")]
