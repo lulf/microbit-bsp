@@ -5,19 +5,18 @@ edition = "2021"
 resolver = "2"
 
 [dependencies]
-embassy-executor = { version = "0.7", default-features = false, features = [
-    "arch-cortex-m", 
-    "defmt", 
-    "executor-interrupt", 
+embassy-executor = { version = "0.9", default-features = false, features = [
+    "arch-cortex-m",
+    "defmt",
+    "executor-interrupt",
     "executor-thread"
     ] }
-embassy-time = { version = "0.4", default-features = false, features = ["defmt", "defmt-timestamp-uptime"] }
 embassy-futures = "0.1.1"
 embassy-sync = { version = "0.7", features = ["defmt"] }
 microbit-bsp = { path = "../../", features = ["trouble"]}
 
 futures = { version = "0.3", default-features = false, features = ["async-await"]}
-trouble-host = { version = "0.2.0", features = ["defmt", "gatt", "peripheral"] }
+trouble-host = { version = "0.5", features = ["defmt", "gatt", "peripheral"] }
 
 defmt = "1.0.1"
 defmt-rtt = "1"

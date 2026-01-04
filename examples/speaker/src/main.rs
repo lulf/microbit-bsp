@@ -2,9 +2,9 @@
 #![no_main]
 
 use embassy_executor::Spawner;
-use embassy_time::Timer;
 use microbit_bsp::{
-    embassy_nrf::pwm::SimplePwm,
+    embassy_nrf::pwm::{SimplePwm, SimpleConfig},
+    embassy_time::Timer,
     speaker::{NamedPitch, Note, PwmSpeaker},
     Microbit,
 };
@@ -39,7 +39,8 @@ const TUNE: [(NamedPitch, u32); 18] = {
 async fn main(_s: Spawner) {
     let board = Microbit::default();
     defmt::info!("Application started!");
-    let mut speaker = PwmSpeaker::new(SimplePwm::new_1ch(board.pwm0, board.speaker));
+    let config = SimpleConfig::default();
+    let mut speaker = PwmSpeaker::new(SimplePwm::new_1ch(board.pwm0, board.speaker, &config));
     loop {
         defmt::info!("Playing tune!");
         for (pitch, ticks) in TUNE {

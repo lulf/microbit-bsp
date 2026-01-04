@@ -7,10 +7,10 @@
 
 use defmt::info;
 use embassy_executor::Spawner;
-use embassy_time::Duration;
 use microbit_bsp::{
     display::{Brightness, Frame},
     embassy_nrf::{bind_interrupts, saadc::InterruptHandler},
+    embassy_time::Duration,
     mic::Microphone,
     LedMatrix, Microbit,
 };

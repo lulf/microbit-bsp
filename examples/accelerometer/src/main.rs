@@ -3,10 +3,10 @@
 
 use defmt::{info, Debug2Format};
 use embassy_executor::Spawner;
-use embassy_time::Duration;
 use microbit_bsp::{
     display::{Brightness, Frame},
     embassy_nrf::{bind_interrupts, peripherals::TWISPI0, twim::InterruptHandler},
+    embassy_time::Duration,
     motion::Sensor,
     LedMatrix, Microbit,
 };

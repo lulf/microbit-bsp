@@ -16,7 +16,7 @@ use lsm303agr::{
 };
 use static_cell::ConstStaticCell;
 
-type I2C<'d> = twim::Twim<'d, TWISPI0>;
+type I2C<'d> = twim::Twim<'d>;
 
 /// Accelerometer error
 pub type Error = LsmError<twim::Error>;

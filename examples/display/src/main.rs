@@ -3,8 +3,7 @@
 
 use embassy_executor::Spawner;
 use embassy_futures::select::{select, Either};
-use embassy_time::Duration;
-use microbit_bsp::*;
+use microbit_bsp::{*, embassy_time::Duration};
 use {defmt_rtt as _, panic_probe as _};
 
 #[embassy_executor::main]

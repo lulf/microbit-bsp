@@ -147,13 +147,13 @@ impl From<NamedPitch> for Pitch {
 pub struct Note(pub Pitch, pub u32);
 
 /// PWM based speaker capable of playing notes with a given pitch
-pub struct PwmSpeaker<'a, T: pwm::Instance> {
-    pwm: pwm::SimplePwm<'a, T>,
+pub struct PwmSpeaker<'a> {
+    pwm: pwm::SimplePwm<'a>,
 }
 
-impl<'a, T: pwm::Instance> PwmSpeaker<'a, T> {
+impl<'a> PwmSpeaker<'a> {
     /// Create a new speaker instance
-    pub fn new(pwm: pwm::SimplePwm<'a, T>) -> Self {
+    pub fn new(pwm: pwm::SimplePwm<'a>) -> Self {
         Self { pwm }
     }
 
@@ -161,7 +161,7 @@ impl<'a, T: pwm::Instance> PwmSpeaker<'a, T> {
         self.pwm.set_prescaler(pwm::Prescaler::Div4);
         self.pwm.set_period(frequency);
         self.pwm.enable();
-        self.pwm.set_duty(0, self.pwm.max_duty() / 2);
+        self.pwm.set_duty(0, pwm::DutyCycle::normal(self.pwm.max_duty() / 2));
     }
 
     fn stop_play(&mut self) {
