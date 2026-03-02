@@ -136,7 +136,7 @@ where
             mpsl::MultiprotocolServiceLayer::new(p, Irqs, Self::LF_CLOCK_CONFIG)
         }?;
         let sdc_rng = {
-            static SDC_RNG: StaticCell<rng::Rng<'static, peripherals::RNG, Async>> = StaticCell::new();
+            static SDC_RNG: StaticCell<rng::Rng<'static, Async>> = StaticCell::new();
             SDC_RNG.init(rng::Rng::new(rng, Irqs))
         };
         let mem = {
@@ -155,7 +155,7 @@ where
 /// Build the Softdevice Controller layer to pass to trouble-host
 fn build_sdc<'d, const N: usize>(
     p: nrf_sdc::Peripherals<'d>,
-    rng: &'d mut rng::Rng<peripherals::RNG, Async>,
+    rng: &'d mut rng::Rng<'d, Async>,
     mpsl: &'d MultiprotocolServiceLayer,
     mem: &'d mut sdc::Mem<N>,
 ) -> Result<nrf_sdc::SoftdeviceController<'d>, nrf_sdc::Error> {

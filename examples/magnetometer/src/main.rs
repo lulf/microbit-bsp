@@ -4,10 +4,10 @@
 use core::f32::consts::PI;
 use defmt::{debug, info, Debug2Format};
 use embassy_executor::Spawner;
-use embassy_time::{Duration, Timer};
 use microbit_bsp::{
     display::{Brightness, Frame},
     embassy_nrf::{bind_interrupts, peripherals::TWISPI0, twim::InterruptHandler},
+    embassy_time::{self, Duration, Timer},
     lsm303agr,
     motion::new_lsm303agr,
     Microbit,

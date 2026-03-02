@@ -1,6 +1,6 @@
 [package]
 name = "microbit-bsp"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2021"
 description = "An embassy-based boards support package (BSP) for BBC Micro:bit v2"
 license = "MIT OR Apache-2.0"
@@ -10,30 +10,30 @@ repository = "https://github.com/lulf/microbit-bsp"
 rust-version = "1.83"
 
 [dependencies]
-embassy-nrf = { version = "0.4.1", features = [
+embassy-nrf = { version = "0.9.0", features = [
     "gpiote",
     "nfc-pins-as-gpio",
     "nrf52833",
     "time-driver-rtc1",
     "time",
 ] }
-embassy-time = { version = "0.4", default-features = false }
-embassy-sync = { version = "0.7.0" }
-cortex-m = { version = "0.7.6" }
+embassy-time = { version = "0.5", default-features = false }
+embassy-sync = { version = "0.7.2" }
+cortex-m = { version = "0.7.7" }
 embedded-hal = "1.0"
 lsm303agr = { version = "1.1.0", features = ["async"] }
 futures = { version = "0.3", default-features = false }
 
 defmt = { version = "^1.0.1", optional = true }
-heapless = "0.8.0"
+heapless = "0.9.1"
 
 # trouble bluetooth dependencies
-nrf-sdc = { version = "0.1", default-features = false, features = [
+nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc.git", rev = "d4d244d5ce21f59fa2263333cb1d8f2a5d997145", default-features = false, features = [
     "defmt",
     "peripheral",
     "nrf52833",
 ], optional = true }
-nrf-mpsl = { version = "0.1", default-features = false, features = [
+nrf-mpsl = { git = "https://github.com/alexmoon/nrf-sdc.git", rev = "d4d244d5ce21f59fa2263333cb1d8f2a5d997145", default-features = false, features = [
     "defmt",
     "critical-section-impl",
 ], optional = true }
@@ -44,7 +44,7 @@ default = ["defmt"]
 defmt = [
     "dep:defmt",
     "embassy-nrf/defmt",
-    "heapless/defmt-03",
+    "heapless/defmt",
     "embassy-time/defmt",
     "embassy-time/defmt-timestamp-uptime",
 ]
